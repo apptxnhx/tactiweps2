@@ -103,7 +103,7 @@ export default function WeaponStats() {
 
   const renderStars = (count: number) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <i key={i} className="fas fa-star text-yellow-400 text-xs sm:text-sm mr-1" />
+      <i key={i} className="fas fa-star text-yellow-400 text-xs sm:text-sm mr-0.5" />
     ));
   };
 
@@ -159,8 +159,10 @@ export default function WeaponStats() {
         backgroundAttachment: "fixed",
       }}
     >
-      {/* CONTAINER PRINCIPAL COM ALTURA MUITO AUMENTADA */}
-      <div className="w-full max-w-[1100px] rounded-xl sm:rounded-2xl bg-tacticool-dark/90 backdrop-blur-md p-3 sm:p-4 flex flex-col shadow-2xl border border-tacticool-teal/30" style={{ height: "90vh", minHeight: "800px", maxHeight: "900px" }}>
+      {/* CONTAINER PRINCIPAL - ALTURA FIXA NO DESKTOP, SCROLL NO MOBILE */}
+      <div className="w-full max-w-[1100px] rounded-xl sm:rounded-2xl bg-tacticool-dark/90 backdrop-blur-md p-3 sm:p-4 flex flex-col shadow-2xl border border-tacticool-teal/30 
+                      h-[100vh] sm:h-[90vh] sm:min-h-[800px] sm:max-h-[900px] 
+                      overflow-y-auto sm:overflow-hidden custom-scrollbar">
         
         {/* Header - Mobile Optimized */}
         <header className="flex justify-between items-center mb-2 sm:mb-3 px-1 sm:px-3 flex-shrink-0">
@@ -185,7 +187,7 @@ export default function WeaponStats() {
           {translate("Max Weapon Stats Without Mods or Operators", "Estatísticas Máximas de Armas sem Operadores e sem Mods")}
         </h1>
         
-        <main className="flex flex-col lg:flex-row gap-3 sm:gap-4 px-1 sm:px-3 flex-1 overflow-hidden">
+        <main className="flex flex-col lg:flex-row gap-3 sm:gap-4 px-1 sm:px-3 flex-1 sm:overflow-hidden">
           
           {/* Mobile Category Toggle Button */}
           <div className="lg:hidden mb-2 flex-shrink-0">
@@ -246,8 +248,8 @@ export default function WeaponStats() {
             </nav>
           </section>
           
-          {/* Weapon Details - ALTURA MUITO AUMENTADA */}
-          <section className="rounded-xl sm:rounded-2xl flex flex-col flex-1 p-2 sm:p-3 relative bg-tacticool-teal shadow-lg overflow-hidden" style={{ minHeight: "650px" }}>
+          {/* Weapon Details - SEM OVERFLOW NO DESKTOP, COM SCROLL NO MOBILE */}
+          <section className="rounded-xl sm:rounded-2xl flex flex-col flex-1 p-2 sm:p-3 relative bg-tacticool-teal shadow-lg sm:overflow-hidden">
             
             {/* Search Bar - Mobile Optimized */}
             <div className="mb-2 sm:mb-3 flex-shrink-0">
@@ -294,8 +296,8 @@ export default function WeaponStats() {
               )}
             </div>
             
-            {/* Weapon Display - ÁREA PRINCIPAL COM ALTURA MUITO AUMENTADA */}
-            <div className="bg-tacticool-dark/50 rounded-lg sm:rounded-xl p-2 sm:p-4 flex-1 overflow-hidden" style={{ minHeight: "550px" }}>
+            {/* Weapon Display - ALTURA FIXA NO DESKTOP, SCROLL NO MOBILE */}
+            <div className="bg-tacticool-dark/50 rounded-lg sm:rounded-xl p-2 sm:p-4 flex-1 sm:overflow-hidden" style={{ minHeight: "500px" }}>
               {filteredWeapons.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-white text-base sm:text-lg mb-2">{translate("No weapon found", "Nenhuma arma encontrada")}</p>
@@ -325,14 +327,14 @@ export default function WeaponStats() {
                     <i className="fas fa-chevron-right"></i>
                   </button>
                   
-                  {/* LAYOUT PRINCIPAL - ALTURA MUITO AUMENTADA COM PADDING PARA AS SETAS */}
+                  {/* LAYOUT PRINCIPAL - PADDING PARA AS SETAS */}
                   <div className="flex flex-col lg:flex-row items-start justify-center h-full px-8 gap-4 lg:gap-6">
                     
                     {/* Weapon Image - TAMANHO RESPONSIVO CORRIGIDO */}
                     <div className="weapon-image-container bg-tacticool-gray/30 rounded-lg p-2 sm:p-3 relative flex items-center justify-center flex-shrink-0 w-full max-w-[300px] lg:max-w-[250px] mx-auto lg:mx-0" 
                          style={{ 
-                           height: "180px", 
-                           minHeight: "180px"
+                           height: "160px", 
+                           minHeight: "160px"
                          }}>
                       {isImageLoading && (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -361,11 +363,11 @@ export default function WeaponStats() {
                       )}
                     </div>
                     
-                    {/* Weapon Stats - ÁREA MUITO AUMENTADA SEM SCROLL - TODOS OS STATS VISÍVEIS */}
+                    {/* Weapon Stats - ESPAÇAMENTO REDUZIDO */}
                     {currentWeapon && (
-                      <div className="w-full lg:w-[420px] text-white font-light leading-tight flex-shrink-0" style={{ minHeight: "500px" }}>
-                        {/* Header Info - ALTURA FIXA */}
-                        <div className="mb-4" style={{ minHeight: "100px" }}>
+                      <div className="w-full lg:w-[420px] text-white font-light leading-tight flex-shrink-0">
+                        {/* Header Info - ESPAÇAMENTO REDUZIDO */}
+                        <div className="mb-2">
                           <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest mb-1 text-tacticool-accent">
                             {language === "en" ? currentWeapon.primary.replace("ARMA PRIMÁRIA:", "PRIMARY WEAPON:").replace("ARMA SECUNDÁRIA:", "SECONDARY WEAPON:").replace("ARMA CORPO A CORPO:", "MELEE WEAPON:").replace("ARMA EXPERIMENTAL:", "EXPERIMENTAL WEAPON:") : currentWeapon.primary}
                           </p>
@@ -381,7 +383,8 @@ export default function WeaponStats() {
                             </p>
                           )}
                           
-                          <div className="flex items-center gap-4">
+                          {/* RARITY E STARS NA MESMA LINHA - ESPAÇAMENTO REDUZIDO */}
+                          <div className="flex items-center gap-3 mb-1">
                             <p className="text-white text-xs font-semibold">
                               {translate("Rarity", "Raridade")}: {language === "en" 
                                 ? currentWeapon.rarity === "Comum" ? "Common" 
@@ -397,8 +400,8 @@ export default function WeaponStats() {
                           </div>
                         </div>
                         
-                        {/* Stats Header */}
-                        <div className="flex justify-between items-center mb-3">
+                        {/* Stats Header - ESPAÇAMENTO REDUZIDO */}
+                        <div className="flex justify-between items-center mb-2">
                           <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-light text-tacticool-accent">
                             STATS
                           </span>
@@ -407,16 +410,16 @@ export default function WeaponStats() {
                           </span>
                         </div>
                         
-                        {/* ÁREA DE STATS MUITO AUMENTADA - SEM SCROLL - TODOS OS STATS SEMPRE VISÍVEIS */}
-                        <div className="space-y-2" style={{ minHeight: "380px" }}>
+                        {/* ÁREA DE STATS - ESPAÇAMENTO REDUZIDO ENTRE STATS */}
+                        <div className="space-y-1">
                           {currentWeapon.stats.map((stat, index) => (
                             <div 
                               key={index}
-                              className="stat-item flex items-center justify-between bg-tacticool-gray/30 rounded-md px-3 py-2.5 opacity-0 transform translate-y-2 animate-fadeInUp"
+                              className="stat-item flex items-center justify-between bg-tacticool-gray/30 rounded-md px-3 py-1.5 opacity-0 transform translate-y-2 animate-fadeInUp"
                               style={{ 
                                 animationDelay: `${(index + 1) * 0.1}s`, 
                                 animationFillMode: 'forwards',
-                                minHeight: '30px'
+                                minHeight: '24px'
                               }}
                             >
                               <div className="flex items-center space-x-3 min-w-0 flex-1">
