@@ -9,21 +9,50 @@ export default function WeaponStats() {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [language, setLanguage] = useState<"pt" | "en">("en");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isGlobalSearch, setIsGlobalSearch] = useState(false);
+
+  // Busca global em todas as categorias
+  const globalSearchResults = useMemo(() => {
+    if (!searchTerm.trim()) return [];
+    
+    const results: { weapon: Weapon; category: string }[] = [];
+    Object.entries(weaponsData).forEach(([category, weapons]) => {
+      weapons.forEach(weapon => {
+        if (weapon.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+          results.push({ weapon, category });
+        }
+      });
+    });
+    return results;
+  }, [searchTerm]);
 
   const filteredWeapons = useMemo(() => {
+    if (isGlobalSearch && searchTerm.trim()) {
+      return globalSearchResults.map(result => result.weapon);
+    }
+    
     const categoryWeapons = weaponsData[currentCategory] || [];
     if (!searchTerm.trim()) return categoryWeapons;
     
     return categoryWeapons.filter(weapon =>
       weapon.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [currentCategory, searchTerm]);
+  }, [currentCategory, searchTerm, isGlobalSearch, globalSearchResults]);
 
   const currentWeapon = filteredWeapons[currentIndex];
 
   useEffect(() => {
     setCurrentIndex(0);
   }, [currentCategory, searchTerm]);
+
+  useEffect(() => {
+    // Ativar busca global quando há termo de busca
+    if (searchTerm.trim()) {
+      setIsGlobalSearch(true);
+    } else {
+      setIsGlobalSearch(false);
+    }
+  }, [searchTerm]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -39,6 +68,7 @@ export default function WeaponStats() {
         case "Escape":
           setSearchTerm("");
           setIsMobileMenuOpen(false);
+          setIsGlobalSearch(false);
           break;
       }
     };
@@ -61,10 +91,14 @@ export default function WeaponStats() {
     setCurrentCategory(category);
     setSearchTerm("");
     setIsMobileMenuOpen(false);
+    setIsGlobalSearch(false);
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (searchTerm.trim()) {
+      setIsGlobalSearch(true);
+    }
   };
 
   const renderStars = (count: number) => {
@@ -105,6 +139,14 @@ export default function WeaponStats() {
 
   const translate = (en: string, pt: string) => {
     return language === "en" ? en : pt;
+  };
+
+  // Obter categoria da arma atual para busca global
+  const getCurrentWeaponCategory = () => {
+    if (!isGlobalSearch || !currentWeapon) return currentCategory;
+    
+    const result = globalSearchResults.find(r => r.weapon.id === currentWeapon.id);
+    return result ? result.category : currentCategory;
   };
 
   return (
@@ -152,7 +194,7 @@ export default function WeaponStats() {
             >
               <span className="text-sm font-medium">
                 <i className="fas fa-list-ul mr-2"></i>
-                {currentCategory}
+                {isGlobalSearch ? translate("Global Search", "Busca Global") : currentCategory}
               </span>
               <i className={`fas fa-chevron-${isMobileMenuOpen ? 'up' : 'down'} transition-transform`}></i>
             </button>
@@ -165,7 +207,7 @@ export default function WeaponStats() {
                     key={category.id}
                     onClick={() => selectCategory(category.id)}
                     className={`w-full text-left px-4 py-3 text-sm text-white hover:bg-tacticool-teal/30 transition-colors flex items-center space-x-3 ${
-                      currentCategory === category.id ? "bg-tacticool-accent/20" : ""
+                      currentCategory === category.id && !isGlobalSearch ? "bg-tacticool-accent/20" : ""
                     }`}
                   >
                     <i className={`${category.icon} text-tacticool-accent`}></i>
@@ -190,7 +232,7 @@ export default function WeaponStats() {
                   key={category.id}
                   onClick={() => selectCategory(category.id)}
                   className={`category-btn text-white text-xs font-light py-1.5 px-3 rounded-r-md rounded-l-full text-left flex items-center space-x-2 transition-all duration-300 hover:transform hover:translate-x-1 hover:shadow-lg ${
-                    currentCategory === category.id
+                    currentCategory === category.id && !isGlobalSearch
                       ? "bg-tacticool-accent shadow-tacticool-accent/30"
                       : "bg-tacticool-gray hover:bg-tacticool-gray/80"
                   }`}
@@ -214,9 +256,9 @@ export default function WeaponStats() {
                 onSubmit={handleSearch}
               >
                 <input
-                  aria-label={translate("Search by name", "Buscar por nome")}
+                  aria-label={translate("Search by name in all categories", "Buscar por nome em todas as categorias")}
                   className="text-xs sm:text-sm font-light px-2 sm:px-3 py-1.5 sm:py-2 rounded-l-md border-0 focus:outline-none focus:ring-2 focus:ring-tacticool-accent bg-white/90 flex-1"
-                  placeholder={translate("Search by Name", "Buscar por Nome")}
+                  placeholder={translate("Search in all categories", "Buscar em todas as categorias")}
                   type="search"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -229,6 +271,26 @@ export default function WeaponStats() {
                   <span className="hidden sm:inline">{translate("Search", "Buscar")}</span>
                 </button>
               </form>
+              
+              {/* Search Results Info */}
+              {isGlobalSearch && searchTerm && (
+                <div className="mt-2 text-xs text-white/80 flex items-center justify-between">
+                  <span>
+                    <i className="fas fa-globe mr-1 text-tacticool-accent"></i>
+                    {translate(`Found ${filteredWeapons.length} weapons`, `Encontradas ${filteredWeapons.length} armas`)}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setIsGlobalSearch(false);
+                    }}
+                    className="text-tacticool-accent hover:text-white transition-colors"
+                  >
+                    <i className="fas fa-times mr-1"></i>
+                    {translate("Clear", "Limpar")}
+                  </button>
+                </div>
+              )}
             </div>
             
             {/* Weapon Display - Mobile Layout */}
@@ -241,10 +303,10 @@ export default function WeaponStats() {
               ) : (
                 <div className="h-full relative">
                   
-                  {/* Navigation Arrows - Mobile Positioned */}
+                  {/* Navigation Arrows - Posicionadas fora da área das estrelas */}
                   <button
                     aria-label={translate("Previous weapon", "Arma anterior")}
-                    className="nav-btn text-tacticool-accent text-lg sm:text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 z-10 bg-tacticool-dark/50 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center"
+                    className="nav-btn text-tacticool-accent text-lg sm:text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute left-1 sm:left-2 top-[45%] transform -translate-y-1/2 z-10 bg-tacticool-dark/70 backdrop-blur-sm rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center border border-tacticool-accent/30"
                     type="button"
                     onClick={() => navigateWeapon(-1)}
                     disabled={filteredWeapons.length <= 1}
@@ -254,7 +316,7 @@ export default function WeaponStats() {
                   
                   <button
                     aria-label={translate("Next weapon", "Próxima arma")}
-                    className="nav-btn text-tacticool-accent text-lg sm:text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 z-10 bg-tacticool-dark/50 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center"
+                    className="nav-btn text-tacticool-accent text-lg sm:text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute right-1 sm:right-2 top-[45%] transform -translate-y-1/2 z-10 bg-tacticool-dark/70 backdrop-blur-sm rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center border border-tacticool-accent/30"
                     type="button"
                     onClick={() => navigateWeapon(1)}
                     disabled={filteredWeapons.length <= 1}
@@ -298,6 +360,15 @@ export default function WeaponStats() {
                         <p className={`text-xl sm:text-2xl font-black mb-1 ${getRarityColor(currentWeapon.rarity)}`}>
                           {currentWeapon.name}
                         </p>
+                        
+                        {/* Mostrar categoria na busca global */}
+                        {isGlobalSearch && (
+                          <p className="text-tacticool-accent text-xs font-medium mb-1">
+                            <i className="fas fa-tag mr-1"></i>
+                            {getCurrentWeaponCategory()}
+                          </p>
+                        )}
+                        
                         <p className="text-white text-xs font-semibold mb-1">
                           {translate("Rarity", "Raridade")}: {language === "en" 
                             ? currentWeapon.rarity === "Comum" ? "Common" 
@@ -371,6 +442,7 @@ export default function WeaponStats() {
               <div className="flex justify-center items-center space-x-3 mt-2">
                 <span className="text-white text-xs">
                   {translate("Weapon", "Arma")} {currentIndex + 1} {translate("of", "de")} {filteredWeapons.length}
+                  {isGlobalSearch && ` (${translate("Global Search", "Busca Global")})`}
                 </span>
                 <div className="flex space-x-1">
                   {renderWeaponIndicators()}
