@@ -159,13 +159,13 @@ export default function WeaponStats() {
         backgroundAttachment: "fixed",
       }}
     >
-      {/* CONTAINER PRINCIPAL - MUITO MAIOR NO MOBILE */}
+      {/* CONTAINER PRINCIPAL - RESPONSIVO */}
       <div className="w-full max-w-[1100px] rounded-2xl bg-tacticool-dark/90 backdrop-blur-md p-4 flex flex-col shadow-2xl border border-tacticool-teal/30" 
            style={{ 
-             height: "95vh", 
-             minHeight: "900px", 
-             maxHeight: "1000px" 
-           }}>
+             height: "600px", // Desktop padrão
+             minHeight: "600px"
+           }}
+           className="w-full max-w-[1100px] rounded-2xl bg-tacticool-dark/90 backdrop-blur-md p-4 flex flex-col shadow-2xl border border-tacticool-teal/30 h-[600px] min-h-[600px] lg:h-[600px] lg:min-h-[600px] md:h-[95vh] md:min-h-[900px] sm:h-[95vh] sm:min-h-[900px]">
         
         {/* Header - TAMANHO ORIGINAL RESTAURADO */}
         <header className="flex justify-between items-center mb-3 px-3 flex-shrink-0">
@@ -232,7 +232,7 @@ export default function WeaponStats() {
             <p className="text-white text-[8px] font-light mb-3 text-center px-3">
               {translate("Please select the weapon category", "Selecione a categoria de arma")}
             </p>
-            <nav className="flex flex-col space-y-1.5 w-[150px] custom-scrollbar overflow-y-auto max-h-[600px] px-2">
+            <nav className="flex flex-col space-y-1.5 w-[150px] custom-scrollbar overflow-y-auto max-h-[420px] px-2">
               {weaponCategories.map((category) => (
                 <button
                   key={category.id}
@@ -251,11 +251,8 @@ export default function WeaponStats() {
             </nav>
           </section>
           
-          {/* Weapon Details - ALTURA MUITO AUMENTADA NO MOBILE */}
-          <section className="rounded-2xl flex flex-col flex-1 p-3 relative bg-tacticool-teal shadow-lg overflow-hidden" 
-                   style={{ 
-                     minHeight: "750px" // MUITO MAIOR NO MOBILE
-                   }}>
+          {/* Weapon Details - ALTURA RESPONSIVA */}
+          <section className="rounded-2xl flex flex-col flex-1 p-3 relative bg-tacticool-teal shadow-lg overflow-hidden min-h-[480px] lg:min-h-[480px] md:min-h-[750px] sm:min-h-[750px]">
             
             {/* Search Bar */}
             <div className="mb-3 flex-shrink-0">
@@ -302,11 +299,8 @@ export default function WeaponStats() {
               )}
             </div>
             
-            {/* Weapon Display - ÁREA PRINCIPAL COM ALTURA MUITO AUMENTADA NO MOBILE */}
-            <div className="bg-tacticool-dark/50 rounded-xl p-4 flex-1 overflow-hidden" 
-                 style={{ 
-                   minHeight: "650px" // MUITO MAIOR NO MOBILE
-                 }}>
+            {/* Weapon Display - ÁREA PRINCIPAL COM ALTURA RESPONSIVA */}
+            <div className="bg-tacticool-dark/50 rounded-xl p-4 flex-1 overflow-hidden min-h-[380px] lg:min-h-[380px] md:min-h-[650px] sm:min-h-[650px]">
               {filteredWeapons.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-white text-lg mb-2">{translate("No weapon found", "Nenhuma arma encontrada")}</p>
@@ -315,10 +309,10 @@ export default function WeaponStats() {
               ) : (
                 <div className="h-full relative">
                   
-                  {/* Navigation Arrows - POSICIONADAS FORA DA ÁREA DE CONTEÚDO */}
+                  {/* Navigation Arrows - VISÍVEIS NO DESKTOP E MOBILE */}
                   <button
                     aria-label={translate("Previous weapon", "Arma anterior")}
-                    className="text-tacticool-accent text-lg hover:text-white transition-all duration-200 hover:scale-110 absolute -left-8 top-1/2 transform -translate-y-1/2 z-20 w-6 h-6 flex items-center justify-center bg-tacticool-dark/80 rounded-full"
+                    className="nav-btn text-tacticool-accent text-xl hover:text-white transition-all duration-200 hover:scale-110 absolute left-2 lg:-left-8 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 lg:w-6 lg:h-6 flex items-center justify-center bg-tacticool-dark/80 rounded-full"
                     type="button"
                     onClick={() => navigateWeapon(-1)}
                     disabled={filteredWeapons.length <= 1}
@@ -328,7 +322,7 @@ export default function WeaponStats() {
                   
                   <button
                     aria-label={translate("Next weapon", "Próxima arma")}
-                    className="text-tacticool-accent text-lg hover:text-white transition-all duration-200 hover:scale-110 absolute -right-8 top-1/2 transform -translate-y-1/2 z-20 w-6 h-6 flex items-center justify-center bg-tacticool-dark/80 rounded-full"
+                    className="nav-btn text-tacticool-accent text-xl hover:text-white transition-all duration-200 hover:scale-110 absolute right-2 lg:-right-8 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 lg:w-6 lg:h-6 flex items-center justify-center bg-tacticool-dark/80 rounded-full"
                     type="button"
                     onClick={() => navigateWeapon(1)}
                     disabled={filteredWeapons.length <= 1}
@@ -336,15 +330,11 @@ export default function WeaponStats() {
                     <i className="fas fa-chevron-right"></i>
                   </button>
                   
-                  {/* LAYOUT PRINCIPAL - SEM PADDING LATERAL PARA AS SETAS */}
-                  <div className="flex flex-col lg:flex-row items-start justify-center h-full gap-4 lg:gap-6">
+                  {/* LAYOUT PRINCIPAL - COM PADDING PARA AS SETAS NO MOBILE */}
+                  <div className="flex flex-col lg:flex-row items-start justify-center h-full gap-4 lg:gap-6 px-12 lg:px-0">
                     
-                    {/* Weapon Image - TAMANHO RESPONSIVO CORRIGIDO */}
-                    <div className="weapon-image-container bg-tacticool-gray/30 rounded-lg p-3 relative flex items-center justify-center flex-shrink-0 w-full max-w-[300px] lg:max-w-[280px] mx-auto lg:mx-0" 
-                         style={{ 
-                           height: "200px", 
-                           minHeight: "200px"
-                         }}>
+                    {/* Weapon Image - TAMANHO RESPONSIVO CORRIGIDO PARA MOBILE */}
+                    <div className="weapon-image-container bg-tacticool-gray/30 rounded-lg p-2 lg:p-3 relative flex items-center justify-center flex-shrink-0 w-full max-w-[280px] lg:max-w-[280px] mx-auto lg:mx-0 h-[160px] lg:h-[200px] min-h-[160px] lg:min-h-[200px]">
                       {isImageLoading && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="loading-spinner border-2 border-white/30 border-t-tacticool-accent rounded-full w-5 h-5 animate-spin"></div>
@@ -374,10 +364,7 @@ export default function WeaponStats() {
                     
                     {/* Weapon Stats - ELEMENTOS MAIS PRÓXIMOS */}
                     {currentWeapon && (
-                      <div className="w-full lg:w-[450px] text-white font-light leading-tight flex-shrink-0" 
-                           style={{ 
-                             minHeight: "580px"
-                           }}>
+                      <div className="w-full lg:w-[450px] text-white font-light leading-tight flex-shrink-0 min-h-[480px] lg:min-h-[580px]">
                         {/* Header Info - ELEMENTOS MAIS PRÓXIMOS */}
                         <div className="mb-2">
                           <p className="text-[9px] font-bold uppercase tracking-widest mb-0.5 text-tacticool-accent">
@@ -422,7 +409,7 @@ export default function WeaponStats() {
                         </div>
                         
                         {/* ÁREA DE STATS - ESPAÇAMENTO REDUZIDO ENTRE STATS */}
-                        <div className="space-y-0.5" style={{ minHeight: "480px" }}>
+                        <div className="space-y-0.5 min-h-[400px] lg:min-h-[480px]">
                           {currentWeapon.stats.map((stat, index) => (
                             <div 
                               key={index}
