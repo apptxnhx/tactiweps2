@@ -1,2890 +1,2582 @@
 import { Weapon } from "@shared/schema";
 
+// Parse RTF data and convert to proper weapon objects
+const parseRTFWeapons = (rtfContent: string): Weapon[] => {
+  try {
+    // Extract JSON from RTF content
+    const jsonMatch = rtfContent.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) return [];
+    
+    const jsonStr = jsonMatch[0]
+      .replace(/\\\\/g, '')
+      .replace(/\\"/g, '"')
+      .replace(/\\\{/g, '{')
+      .replace(/\\\}/g, '}')
+      .replace(/\\\[/g, '[')
+      .replace(/\\\]/g, ']');
+    
+    const weapons = JSON.parse(jsonStr);
+    
+    return weapons.map((weapon: any) => ({
+      id: weapon.id,
+      name: weapon.nome,
+      category: weapon.categoria,
+      primary: `ARMA PRIMÁRIA: ${weapon.categoria.toUpperCase()}`,
+      rarity: weapon.raridade,
+      stars: weapon.raridade === "Comum" ? 2 
+            : weapon.raridade === "Incomum" ? 3
+            : weapon.raridade === "Raro" ? 4
+            : weapon.raridade === "Épico" ? 5
+            : 3,
+      image: `https://images.unsplash.com/photo-1544717297-fa95b6ee9643?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300`,
+      stats: Object.entries(weapon.stats)
+        .filter(([key, value]) => value !== null && value !== undefined)
+        .map(([key, value]) => ({
+          icon: getStatIcon(key),
+          label: getStatLabel(key),
+          value: String(value)
+        }))
+    }));
+  } catch (error) {
+    console.error('Error parsing RTF weapons:', error);
+    return [];
+  }
+};
+
+const getStatIcon = (statKey: string): string => {
+  const iconMap: Record<string, string> = {
+    'dano': 'fas fa-burn',
+    'dano_melee': 'fas fa-fist-raised',
+    'municao': 'fas fa-bolt',
+    'cadencia_de_tiro': 'fas fa-tachometer-alt',
+    'precisao': 'fas fa-bullseye',
+    'alcance': 'fas fa-ruler-horizontal',
+    'velocidade_personagem': 'fas fa-running',
+    'tempo_recarga': 'fas fa-sync-alt',
+    'burn': 'fas fa-fire',
+    'fuel': 'fas fa-gas-pump',
+    'bleed': 'fas fa-tint'
+  };
+  return iconMap[statKey] || 'fas fa-info-circle';
+};
+
+const getStatLabel = (statKey: string): string => {
+  const labelMap: Record<string, string> = {
+    'dano': 'Dano',
+    'dano_melee': 'Dano Melee',
+    'municao': 'Munição',
+    'cadencia_de_tiro': 'Cadência de Tiro',
+    'precisao': 'Precisão',
+    'alcance': 'Alcance',
+    'velocidade_personagem': 'Velocidade do Personagem',
+    'tempo_recarga': 'Tempo de Recarga',
+    'burn': 'Burn',
+    'fuel': 'Fuel',
+    'bleed': 'Bleed'
+  };
+  return labelMap[statKey] || statKey;
+};
+
+// RTF Content from attached files
+const assaultRifleRTF = `{\rtf1\ansi\ansicpg1252\cocoartf2757
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 [
+  {
+    "id": 1,
+    "nome": "K-TRAC 5.8",
+    "categoria": "Assault Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 601,
+      "dano_melee": 978,
+      "municao": 37,
+      "cadencia_de_tiro": 402,
+      "precisao": "275-655",
+      "alcance": 14.9,
+      "velocidade_personagem": 88,
+      "tempo_recarga": 2.2
+    }
+  },
+  {
+    "id": 2,
+    "nome": "ARCLIGHT 56",
+    "categoria": "Assault Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 759,
+      "dano_melee": 978,
+      "municao": 26,
+      "cadencia_de_tiro": 262,
+      "precisao": "158-885",
+      "alcance": 17.4,
+      "velocidade_personagem": 91,
+      "tempo_recarga": 2.3
+    }
+  },
+  {
+    "id": 3,
+    "nome": "MAS-47",
+    "categoria": "Assault Rifle",
+    "raridade": "Comum",
+    "stats": {
+      "dano": 401,
+      "dano_melee": 692,
+      "municao": 35,
+      "cadencia_de_tiro": 408,
+      "precisao": "290-676",
+      "alcance": 16.7,
+      "velocidade_personagem": 89,
+      "tempo_recarga": 2.3
+    }
+  },
+  {
+    "id": 4,
+    "nome": "KRAIT",
+    "categoria": "Assault Rifle",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 655,
+      "dano_melee": 863,
+      "municao": 26,
+      "cadencia_de_tiro": 271,
+      "precisao": "158-885",
+      "alcance": 18.7,
+      "velocidade_personagem": 91,
+      "tempo_recarga": 2.3
+    }
+  },
+  {
+    "id": 5,
+    "nome": "FALCON A4",
+    "categoria": "Assault Rifle",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 541,
+      "dano_melee": 863,
+      "municao": 34,
+      "cadencia_de_tiro": 438,
+      "precisao": "253-624",
+      "alcance": 15.9,
+      "velocidade_personagem": 92,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 6,
+    "nome": "QQ-95",
+    "categoria": "Assault Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 911,
+      "dano_melee": 1150,
+      "municao": 27,
+      "cadencia_de_tiro": 264,
+      "precisao": "117-798",
+      "alcance": 18.5,
+      "velocidade_personagem": 88,
+      "tempo_recarga": 2.4
+    }
+  },
+  {
+    "id": 7,
+    "nome": "GIDEN",
+    "categoria": "Assault Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 683,
+      "dano_melee": 1150,
+      "municao": 37,
+      "cadencia_de_tiro": 420,
+      "precisao": "280-662",
+      "alcance": 15.6,
+      "velocidade_personagem": 90,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 8,
+    "nome": "KULT-M",
+    "categoria": "Assault Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 893,
+      "dano_melee": 1150,
+      "municao": 27,
+      "cadencia_de_tiro": 268,
+      "precisao": "122-809",
+      "alcance": 18.1,
+      "velocidade_personagem": 90,
+      "tempo_recarga": 2.4
+    }
+  },
+  {
+    "id": 9,
+    "nome": "VFX150",
+    "categoria": "Assault Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 683,
+      "dano_melee": 1150,
+      "municao": 36,
+      "cadencia_de_tiro": 420,
+      "precisao": "275-655",
+      "alcance": 15.9,
+      "velocidade_personagem": 90,
+      "tempo_recarga": 2.4
+    }
+  },
+  {
+    "id": 10,
+    "nome": "AUCH",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1052,
+      "dano_melee": 1448,
+      "municao": 28,
+      "cadencia_de_tiro": 264,
+      "precisao": "130-827",
+      "alcance": 18.5,
+      "velocidade_personagem": 90,
+      "tempo_recarga": 2.45
+    }
+  },
+  {
+    "id": 11,
+    "nome": "KANZAZ",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 866,
+      "dano_melee": 1448,
+      "municao": 34,
+      "cadencia_de_tiro": 408,
+      "precisao": "265-641",
+      "alcance": 16.4,
+      "velocidade_personagem": 91,
+      "tempo_recarga": 2.6
+    }
+  },
+  {
+    "id": 12,
+    "nome": "IAR-21",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1052,
+      "dano_melee": 1448,
+      "municao": 29,
+      "cadencia_de_tiro": 261,
+      "precisao": "150-868",
+      "alcance": 19.2,
+      "velocidade_personagem": 89,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 13,
+    "nome": "VAKTOR",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 909,
+      "dano_melee": 1448,
+      "municao": 33,
+      "cadencia_de_tiro": 360,
+      "precisao": "290-676",
+      "alcance": 17.0,
+      "velocidade_personagem": 88,
+      "tempo_recarga": 2.4
+    }
+  },
+  {
+    "id": 14,
+    "nome": "E2 PARAJUMPER",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1244,
+      "dano_melee": 1448,
+      "municao": 24,
+      "cadencia_de_tiro": 257,
+      "precisao": "130-827",
+      "alcance": 19.2,
+      "velocidade_personagem": 86,
+      "tempo_recarga": 2.3
+    }
+  },
+  {
+    "id": 15,
+    "nome": "OLD WAR",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 779,
+      "dano_melee": 1448,
+      "municao": 36,
+      "cadencia_de_tiro": 450,
+      "precisao": "228-592",
+      "alcance": 14.9,
+      "velocidade_personagem": 92,
+      "tempo_recarga": 2.3
+    }
+  },
+  {
+    "id": 16,
+    "nome": "ECLIPSE",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1074,
+      "dano_melee": 1448,
+      "municao": 29,
+      "cadencia_de_tiro": 274,
+      "precisao": "103-771",
+      "alcance": 16.5,
+      "velocidade_personagem": 87,
+      "tempo_recarga": 2.6
+    }
+  },
+  {
+    "id": 17,
+    "nome": "GREMLIN",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 823,
+      "dano_melee": 1448,
+      "municao": 39,
+      "cadencia_de_tiro": 450,
+      "precisao": "265-641",
+      "alcance": 15.4,
+      "velocidade_personagem": 92,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 18,
+    "nome": "QQ-95 GOLD",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1188,
+      "dano_melee": 1448,
+      "municao": 28,
+      "cadencia_de_tiro": 264,
+      "precisao": "117-798",
+      "alcance": 18.7,
+      "velocidade_personagem": 88,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 19,
+    "nome": "SPAR-M8",
+    "categoria": "Assault Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 907,
+      "dano_melee": 1448,
+      "municao": null,
+      "cadencia_de_tiro": "139-924",
+      "precisao": "275-655",
+      "alcance": 15.4,
+      "velocidade_personagem": 90,
+      "tempo_recarga": "0.65-2.6"
+    }
+  }
+]}`;
+
+const smgRTF = `[
+  {
+    "id": 1,
+    "nome": "HALBERD V10",
+    "categoria": "SMG",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 404,
+      "dano_melee": 1136,
+      "municao": 29,
+      "cadencia_de_tiro": 564,
+      "precisao": 360,
+      "alcance": 12.1,
+      "velocidade_personagem": 100,
+      "tempo_recarga": 2.2
+    }
+  },
+  {
+    "id": 2,
+    "nome": "ECHELON R",
+    "categoria": "SMG",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 385,
+      "dano_melee": 1136,
+      "municao": 29,
+      "cadencia_de_tiro": 564,
+      "precisao": 360,
+      "alcance": 12.6,
+      "velocidade_personagem": 100,
+      "tempo_recarga": 2.2
+    }
+  },
+  {
+    "id": 3,
+    "nome": "TAMO 220",
+    "categoria": "SMG",
+    "raridade": "Comum",
+    "stats": {
+      "dano": 277,
+      "dano_melee": 811,
+      "municao": 32,
+      "cadencia_de_tiro": 522,
+      "precisao": 319,
+      "alcance": 14.3,
+      "velocidade_personagem": 98,
+      "tempo_recarga": 2.1
+    }
+  },
+  {
+    "id": 4,
+    "nome": "KPD-45",
+    "categoria": "SMG",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 333,
+      "dano_melee": 1008,
+      "municao": 30,
+      "cadencia_de_tiro": 558,
+      "precisao": 327,
+      "alcance": 12.1,
+      "velocidade_personagem": 101,
+      "tempo_recarga": 2.0
+    }
+  },
+  {
+    "id": 5,
+    "nome": "BOZON",
+    "categoria": "SMG",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 441,
+      "dano_melee": 1337,
+      "municao": 34,
+      "cadencia_de_tiro": 510,
+      "precisao": 360,
+      "alcance": 14.5,
+      "velocidade_personagem": 96,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 6,
+    "nome": "PTU80",
+    "categoria": "SMG",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 464,
+      "dano_melee": 1337,
+      "municao": 31,
+      "cadencia_de_tiro": 540,
+      "precisao": 334,
+      "alcance": 14.0,
+      "velocidade_personagem": 100,
+      "tempo_recarga": 2.1
+    }
+  },
+  {
+    "id": 7,
+    "nome": "SM50",
+    "categoria": "SMG",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 496,
+      "dano_melee": 1337,
+      "municao": 31,
+      "cadencia_de_tiro": 468,
+      "precisao": 319,
+      "alcance": 12.3,
+      "velocidade_personagem": 98,
+      "tempo_recarga": 2.0
+    }
+  },
+  {
+    "id": 8,
+    "nome": "MK20",
+    "categoria": "SMG",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 522,
+      "dano_melee": 1337,
+      "municao": 32,
+      "cadencia_de_tiro": 450,
+      "precisao": 342,
+      "alcance": 12.8,
+      "velocidade_personagem": 97,
+      "tempo_recarga": 2.1
+    }
+  },
+  {
+    "id": 9,
+    "nome": "VENDETTA",
+    "categoria": "SMG",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 508,
+      "dano_melee": 1337,
+      "municao": 28,
+      "cadencia_de_tiro": 504,
+      "precisao": 355,
+      "alcance": 13.5,
+      "velocidade_personagem": 99,
+      "tempo_recarga": 2.3
+    }
+  },
+  {
+    "id": 10,
+    "nome": "AUG",
+    "categoria": "SMG",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 455,
+      "dano_melee": 2067,
+      "municao": 27,
+      "cadencia_de_tiro": 570,
+      "precisao": 311,
+      "alcance": 12.3,
+      "velocidade_personagem": 104,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 11,
+    "nome": "KAS-12",
+    "categoria": "SMG",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 488,
+      "dano_melee": 2067,
+      "municao": 26,
+      "cadencia_de_tiro": 600,
+      "precisao": 327,
+      "alcance": 11.8,
+      "velocidade_personagem": 106,
+      "tempo_recarga": 2.4
+    }
+  },
+  {
+    "id": 12,
+    "nome": "Famas",
+    "categoria": "SMG",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 421,
+      "dano_melee": 2067,
+      "municao": 25,
+      "cadencia_de_tiro": 660,
+      "precisao": 288,
+      "alcance": 11.5,
+      "velocidade_personagem": 105,
+      "tempo_recarga": 2.6
+    }
+  },
+  {
+    "id": 13,
+    "nome": "KRISS",
+    "categoria": "SMG",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 401,
+      "dano_melee": 2067,
+      "municao": 30,
+      "cadencia_de_tiro": 720,
+      "precisao": 255,
+      "alcance": 11.0,
+      "velocidade_personagem": 108,
+      "tempo_recarga": 2.8
+    }
+  },
+  {
+    "id": 14,
+    "nome": "BANSHEE",
+    "categoria": "SMG",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 510,
+      "dano_melee": 2067,
+      "municao": 28,
+      "cadencia_de_tiro": 540,
+      "precisao": 340,
+      "alcance": 13.0,
+      "velocidade_personagem": 103,
+      "tempo_recarga": 2.7
+    }
+  },
+  {
+    "id": 15,
+    "nome": "TULUM",
+    "categoria": "SMG",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 477,
+      "dano_melee": 2067,
+      "municao": 33,
+      "cadencia_de_tiro": 630,
+      "precisao": 273,
+      "alcance": 12.0,
+      "velocidade_personagem": 107,
+      "tempo_recarga": 2.9
+    }
+  },
+  {
+    "id": 16,
+    "nome": "MX4",
+    "categoria": "SMG",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 435,
+      "dano_melee": 2067,
+      "municao": 35,
+      "cadencia_de_tiro": 690,
+      "precisao": 260,
+      "alcance": 11.2,
+      "velocidade_personagem": 109,
+      "tempo_recarga": 3.1
+    }
+  },
+  {
+    "id": 17,
+    "nome": "SCORPION",
+    "categoria": "SMG",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 499,
+      "dano_melee": 2067,
+      "municao": 20,
+      "cadencia_de_tiro": 588,
+      "precisao": 301,
+      "alcance": 12.5,
+      "velocidade_personagem": 110,
+      "tempo_recarga": 2.3
+    }
+  }
+]`;
+
+const shotgunRTF = `[
+  {
+    "id": 1,
+    "nome": "OXHEAD",
+    "categoria": "Shotgun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 5366,
+      "dano_melee": 1395,
+      "municao": 2,
+      "cadencia_de_tiro": 114,
+      "precisao": 135,
+      "alcance": 7.5,
+      "velocidade_personagem": 96,
+      "tempo_recarga": 4.2
+    }
+  },
+  {
+    "id": 2,
+    "nome": "REAVER M30",
+    "categoria": "Shotgun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 4320,
+      "dano_melee": 1395,
+      "municao": 6,
+      "cadencia_de_tiro": 108,
+      "precisao": 47,
+      "alcance": 8.6,
+      "velocidade_personagem": 99,
+      "tempo_recarga": 4.2
+    }
+  },
+  {
+    "id": 3,
+    "nome": "SKAT-A",
+    "categoria": "Shotgun",
+    "raridade": "Comum",
+    "stats": {
+      "dano": 3225,
+      "dano_melee": 988,
+      "municao": 7,
+      "cadencia_de_tiro": 102,
+      "precisao": 27,
+      "alcance": 8.6,
+      "velocidade_personagem": 97,
+      "tempo_recarga": 4.2
+    }
+  },
+  {
+    "id": 4,
+    "nome": "VEGA DT",
+    "categoria": "Shotgun",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 4708,
+      "dano_melee": 1047,
+      "municao": 2,
+      "cadencia_de_tiro": 96,
+      "precisao": 162,
+      "alcance": 6.8,
+      "velocidade_personagem": 99,
+      "tempo_recarga": 3.6
+    }
+  },
+  {
+    "id": 5,
+    "nome": "TYR-9",
+    "categoria": "Shotgun",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 3928,
+      "dano_melee": 1232,
+      "municao": 7,
+      "cadencia_de_tiro": 84,
+      "precisao": 42,
+      "alcance": 8.7,
+      "velocidade_personagem": 96,
+      "tempo_recarga": 3.6
+    }
+  },
+  {
+    "id": 6,
+    "nome": "OOPS15",
+    "categoria": "Shotgun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 5637,
+      "dano_melee": 1641,
+      "municao": 5,
+      "cadencia_de_tiro": 84,
+      "precisao": 30,
+      "alcance": 8.6,
+      "velocidade_personagem": 98,
+      "tempo_recarga": 4.2
+    }
+  },
+  {
+    "id": 7,
+    "nome": "REMMY 14",
+    "categoria": "Shotgun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 6555,
+      "dano_melee": 1641,
+      "municao": 2,
+      "cadencia_de_tiro": 90,
+      "precisao": 98,
+      "alcance": 7.7,
+      "velocidade_personagem": 96,
+      "tempo_recarga": 4.4
+    }
+  },
+  {
+    "id": 8,
+    "nome": "UU-10",
+    "categoria": "Shotgun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 5268,
+      "dano_melee": 1641,
+      "municao": 6,
+      "cadencia_de_tiro": 90,
+      "precisao": 37,
+      "alcance": 9.0,
+      "velocidade_personagem": 97,
+      "tempo_recarga": 4.0
+    }
+  },
+  {
+    "id": 9,
+    "nome": "GRANDMASTER",
+    "categoria": "Shotgun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 5997,
+      "dano_melee": 1641,
+      "municao": 2,
+      "cadencia_de_tiro": 105,
+      "precisao": 87,
+      "alcance": 7.0,
+      "velocidade_personagem": 110,
+      "tempo_recarga": 4.4
+    }
+  },
+  {
+    "id": 10,
+    "nome": "PAS6",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 6320,
+      "dano_melee": 2067,
+      "municao": 8,
+      "cadencia_de_tiro": 75,
+      "precisao": 20,
+      "alcance": 9.4,
+      "velocidade_personagem": 99,
+      "tempo_recarga": 3.4
+    }
+  },
+  {
+    "id": 11,
+    "nome": "PUNCHER",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 6986,
+      "dano_melee": 2067,
+      "municao": 5,
+      "cadencia_de_tiro": 84,
+      "precisao": 48,
+      "alcance": 9.9,
+      "velocidade_personagem": 94,
+      "tempo_recarga": 4.4
+    }
+  },
+  {
+    "id": 12,
+    "nome": "THUNDER",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 7892,
+      "dano_melee": 2067,
+      "municao": 2,
+      "cadencia_de_tiro": 102,
+      "precisao": 148,
+      "alcance": 6.6,
+      "velocidade_personagem": 101,
+      "tempo_recarga": 3.7
+    }
+  },
+  {
+    "id": 13,
+    "nome": "SOURCE",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 6653,
+      "dano_melee": 2067,
+      "municao": 7,
+      "cadencia_de_tiro": 78,
+      "precisao": 44,
+      "alcance": 9.7,
+      "velocidade_personagem": 95,
+      "tempo_recarga": 4.15
+    }
+  },
+  {
+    "id": 14,
+    "nome": "HAIL",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 8371,
+      "dano_melee": 2067,
+      "municao": 2,
+      "cadencia_de_tiro": 105,
+      "precisao": 108,
+      "alcance": 5.9,
+      "velocidade_personagem": 102,
+      "tempo_recarga": 3.6
+    }
+  },
+  {
+    "id": 15,
+    "nome": "XL20",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 7972,
+      "dano_melee": 2067,
+      "municao": 2,
+      "cadencia_de_tiro": 105,
+      "precisao": 135,
+      "alcance": 7.0,
+      "velocidade_personagem": 99,
+      "tempo_recarga": 4.0
+    }
+  },
+  {
+    "id": 16,
+    "nome": "SHORTY",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 5988,
+      "dano_melee": 2067,
+      "municao": 6,
+      "cadencia_de_tiro": 120,
+      "precisao": 44,
+      "alcance": 8.6,
+      "velocidade_personagem": 99,
+      "tempo_recarga": 4.3
+    }
+  },
+  {
+    "id": 17,
+    "nome": "RIO BRAVO",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 7573,
+      "dano_melee": 2067,
+      "municao": 2,
+      "cadencia_de_tiro": 135,
+      "precisao": 102,
+      "alcance": 7.7,
+      "velocidade_personagem": 96,
+      "tempo_recarga": 4.4
+    }
+  },
+  {
+    "id": 18,
+    "nome": "FURN-S",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4257,
+      "dano_melee": 2067,
+      "municao": 4,
+      "cadencia_de_tiro": 78,
+      "precisao": 44,
+      "alcance": 11.0,
+      "velocidade_personagem": 92,
+      "tempo_recarga": 2.4,
+      "burn": 2059
+    }
+  },
+  {
+    "id": 19,
+    "nome": "DM-SG",
+    "categoria": "Shotgun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 6320,
+      "dano_melee": 2067,
+      "municao": 8,
+      "cadencia_de_tiro": 120,
+      "precisao": 27,
+      "alcance": 7.7,
+      "velocidade_personagem": 100,
+      "tempo_recarga": 4.4
+    }
+  }
+]`;
+
+const sniperRifleRTF = `[
+  {
+    "id": 1,
+    "nome": "TALON S4",
+    "categoria": "Sniper Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 2405,
+      "dano_melee": 817,
+      "municao": 7,
+      "cadencia_de_tiro": 61,
+      "precisao": "569-911",
+      "alcance": 22.5,
+      "velocidade_personagem": 85,
+      "tempo_recarga": 2.8
+    }
+  },
+  {
+    "id": 2,
+    "nome": "TITAN S1",
+    "categoria": "Sniper Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 2685,
+      "dano_melee": 817,
+      "municao": 6,
+      "cadencia_de_tiro": 75,
+      "precisao": "197-990",
+      "alcance": 24.2,
+      "velocidade_personagem": 81,
+      "tempo_recarga": 3.2
+    }
+  },
+  {
+    "id": 3,
+    "nome": "VLR-12",
+    "categoria": "Sniper Rifle",
+    "raridade": "Comum",
+    "stats": {
+      "dano": 1791,
+      "dano_melee": 486,
+      "municao": 6,
+      "cadencia_de_tiro": 66,
+      "precisao": "185-972",
+      "alcance": 26.4,
+      "velocidade_personagem": 80,
+      "tempo_recarga": 2.9
+    }
+  },
+  {
+    "id": 4,
+    "nome": "ARX-204",
+    "categoria": "Sniper Rifle",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 2056,
+      "dano_melee": 610,
+      "municao": 6,
+      "cadencia_de_tiro": 59,
+      "precisao": "583-925",
+      "alcance": 24.8,
+      "velocidade_personagem": 84,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 5,
+    "nome": "HOWL",
+    "categoria": "Sniper Rifle",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 2394,
+      "dano_melee": 610,
+      "municao": 8,
+      "cadencia_de_tiro": 76,
+      "precisao": "132-885",
+      "alcance": 25.3,
+      "velocidade_personagem": 78,
+      "tempo_recarga": 3.4
+    }
+  },
+  {
+    "id": 6,
+    "nome": "CT 200M",
+    "categoria": "Sniper Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 2936,
+      "dano_melee": 961,
+      "municao": 5,
+      "cadencia_de_tiro": 54,
+      "precisao": "632-967",
+      "alcance": 24.2,
+      "velocidade_personagem": 88,
+      "tempo_recarga": 2.6
+    }
+  },
+  {
+    "id": 7,
+    "nome": "TICKLE X3",
+    "categoria": "Sniper Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 3001,
+      "dano_melee": 961,
+      "municao": 7,
+      "cadencia_de_tiro": 73,
+      "precisao": "132-885",
+      "alcance": 24.8,
+      "velocidade_personagem": 82,
+      "tempo_recarga": 3.0,
+      "bleed": 3
+    }
+  },
+  {
+    "id": 8,
+    "nome": "MX2020",
+    "categoria": "Sniper Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 2796,
+      "dano_melee": 961,
+      "municao": 6,
+      "cadencia_de_tiro": 60,
+      "precisao": "592-935",
+      "alcance": 23.1,
+      "velocidade_personagem": 87,
+      "tempo_recarga": 2.4
+    }
+  },
+  {
+    "id": 9,
+    "nome": "AW",
+    "categoria": "Sniper Rifle",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 3159,
+      "dano_melee": 961,
+      "municao": 7,
+      "cadencia_de_tiro": 70,
+      "precisao": "176-958",
+      "alcance": 25.3,
+      "velocidade_personagem": 80,
+      "tempo_recarga": 3.1
+    }
+  },
+  {
+    "id": 10,
+    "nome": "MIMI 15",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 3453,
+      "dano_melee": 1214,
+      "municao": 7,
+      "cadencia_de_tiro": 57,
+      "precisao": "547-885",
+      "alcance": 20.9,
+      "velocidade_personagem": 84,
+      "tempo_recarga": 2.45
+    }
+  },
+  {
+    "id": 11,
+    "nome": "BULLSEYE",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4223,
+      "dano_melee": 1214,
+      "municao": 6,
+      "cadencia_de_tiro": 60,
+      "precisao": "162-935",
+      "alcance": 24.2,
+      "velocidade_personagem": 77,
+      "tempo_recarga": 3.1
+    }
+  },
+  {
+    "id": 12,
+    "nome": "GF 24",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 3738,
+      "dano_melee": 1214,
+      "municao": 6,
+      "cadencia_de_tiro": 53,
+      "precisao": "650-981",
+      "alcance": 24.8,
+      "velocidade_personagem": 82,
+      "tempo_recarga": 2.85
+    }
+  },
+  {
+    "id": 13,
+    "nome": "ATHENA",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 3740,
+      "dano_melee": 1214,
+      "municao": 8,
+      "cadencia_de_tiro": 78,
+      "precisao": "162-935",
+      "alcance": 23.1,
+      "velocidade_personagem": 84,
+      "tempo_recarga": 3.3
+    }
+  },
+  {
+    "id": 14,
+    "nome": "FR USTR8",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 3560,
+      "dano_melee": 1214,
+      "municao": 6,
+      "cadencia_de_tiro": 57,
+      "precisao": "620-958",
+      "alcance": 24.2,
+      "velocidade_personagem": 85,
+      "tempo_recarga": 2.5
+    }
+  },
+  {
+    "id": 15,
+    "nome": "OSIRIS",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4304,
+      "dano_melee": 1214,
+      "municao": 7,
+      "cadencia_de_tiro": 60,
+      "precisao": "185-972",
+      "alcance": 26.4,
+      "velocidade_personagem": 77,
+      "tempo_recarga": 3.4
+    }
+  },
+  {
+    "id": 16,
+    "nome": "SEE ME NOT",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 3453,
+      "dano_melee": 1214,
+      "municao": 7,
+      "cadencia_de_tiro": 55,
+      "precisao": "632-967",
+      "alcance": 25.3,
+      "velocidade_personagem": 82,
+      "tempo_recarga": 2.8
+    }
+  },
+  {
+    "id": 17,
+    "nome": "LONGSHOT-6",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4304,
+      "dano_melee": 1214,
+      "municao": 6,
+      "cadencia_de_tiro": 63,
+      "precisao": "191-981",
+      "alcance": 27.5,
+      "velocidade_personagem": 78,
+      "tempo_recarga": 3.3
+    }
+  },
+  {
+    "id": 18,
+    "nome": "DOOM-INJECT .25",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1016,
+      "dano_melee": 1214,
+      "municao": 1,
+      "cadencia_de_tiro": null,
+      "precisao": "385-1000",
+      "alcance": 24.2,
+      "velocidade_personagem": 85,
+      "tempo_recarga": 1.35,
+      "bleed": 1637
+    }
+  },
+  {
+    "id": 19,
+    "nome": "MP200",
+    "categoria": "Sniper Rifle",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 688,
+      "dano_melee": 1214,
+      "municao": 22,
+      "cadencia_de_tiro": 424,
+      "precisao": "771-935",
+      "alcance": 23.1,
+      "velocidade_personagem": 99,
+      "tempo_recarga": 1.2
+    }
+  }
+]`;
+
+const machineGunRTF = `[
+  {
+    "id": 1,
+    "nome": "GRINDCORE",
+    "categoria": "Machine Gun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 376,
+      "dano_melee": 1096,
+      "municao": 130,
+      "cadencia_de_tiro": "384-960",
+      "precisao": "76-540",
+      "alcance": 18.5,
+      "velocidade_personagem": 84,
+      "tempo_recarga": 2.1
+    }
+  },
+  {
+    "id": 2,
+    "nome": "PILLAR-2",
+    "categoria": "Machine Gun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 786,
+      "dano_melee": 1096,
+      "municao": 115,
+      "cadencia_de_tiro": 708,
+      "precisao": "112-290",
+      "alcance": 16.8,
+      "velocidade_personagem": 81,
+      "tempo_recarga": 5.5
+    }
+  },
+  {
+    "id": 3,
+    "nome": "NM-11",
+    "categoria": "Machine Gun",
+    "raridade": "Comum",
+    "stats": {
+      "dano": 520,
+      "dano_melee": 770,
+      "municao": 125,
+      "cadencia_de_tiro": 612,
+      "precisao": "85-230",
+      "alcance": 19.2,
+      "velocidade_personagem": 84,
+      "tempo_recarga": 4.9
+    }
+  },
+  {
+    "id": 4,
+    "nome": "OHM-8",
+    "categoria": "Machine Gun",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 690,
+      "dano_melee": 964,
+      "municao": 110,
+      "cadencia_de_tiro": 660,
+      "precisao": "90-248",
+      "alcance": 17.3,
+      "velocidade_personagem": 86,
+      "tempo_recarga": 5.0
+    }
+  },
+  {
+    "id": 5,
+    "nome": "M-TORQ",
+    "categoria": "Machine Gun",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 336,
+      "dano_melee": 964,
+      "municao": 105,
+      "cadencia_de_tiro": "420-1050",
+      "precisao": "87-579",
+      "alcance": 18.7,
+      "velocidade_personagem": 82,
+      "tempo_recarga": 1.9
+    }
+  },
+  {
+    "id": 6,
+    "nome": "MM66",
+    "categoria": "Machine Gun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 904,
+      "dano_melee": 1289,
+      "municao": 115,
+      "cadencia_de_tiro": 660,
+      "precisao": "94-258",
+      "alcance": 18.0,
+      "velocidade_personagem": 84,
+      "tempo_recarga": 5.1
+    }
+  },
+  {
+    "id": 7,
+    "nome": "GOSHAN",
+    "categoria": "Machine Gun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 467,
+      "dano_melee": 1289,
+      "municao": 105,
+      "cadencia_de_tiro": "402-1005",
+      "precisao": "98-624",
+      "alcance": 17.0,
+      "velocidade_personagem": 82,
+      "tempo_recarga": 1.7
+    }
+  },
+  {
+    "id": 8,
+    "nome": "PRK",
+    "categoria": "Machine Gun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 904,
+      "dano_melee": 1289,
+      "municao": 110,
+      "cadencia_de_tiro": 648,
+      "precisao": "94-258",
+      "alcance": 18.3,
+      "velocidade_personagem": 86,
+      "tempo_recarga": 5.1
+    }
+  },
+  {
+    "id": 9,
+    "nome": "FAULKNER",
+    "categoria": "Machine Gun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 949,
+      "dano_melee": 1289,
+      "municao": 105,
+      "cadencia_de_tiro": 600,
+      "precisao": "92-251",
+      "alcance": 17.0,
+      "velocidade_personagem": 88,
+      "tempo_recarga": 4.4
+    }
+  },
+  {
+    "id": 10,
+    "nome": "TRIGUN",
+    "categoria": "Machine Gun",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 439,
+      "dano_melee": 1289,
+      "municao": 125,
+      "cadencia_de_tiro": "450-1125",
+      "precisao": "92-594",
+      "alcance": 19.0,
+      "velocidade_personagem": 70,
+      "tempo_recarga": 2.3
+    }
+  },
+  {
+    "id": 11,
+    "nome": "POLOVEC",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1111,
+      "dano_melee": 1627,
+      "municao": 103,
+      "cadencia_de_tiro": 630,
+      "precisao": "102-279",
+      "alcance": 19.2,
+      "velocidade_personagem": 88,
+      "tempo_recarga": 5.0
+    }
+  },
+  {
+    "id": 12,
+    "nome": "ROTOGUN",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 574,
+      "dano_melee": 1627,
+      "municao": 115,
+      "cadencia_de_tiro": "420-1050",
+      "precisao": "87-579",
+      "alcance": 18.0,
+      "velocidade_personagem": 77,
+      "tempo_recarga": 1.8
+    }
+  },
+  {
+    "id": 13,
+    "nome": "B-FIVE-ONE",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1065,
+      "dano_melee": 1627,
+      "municao": 125,
+      "cadencia_de_tiro": 690,
+      "precisao": "90-248",
+      "alcance": 18.5,
+      "velocidade_personagem": 80,
+      "tempo_recarga": 5.6
+    }
+  },
+  {
+    "id": 14,
+    "nome": "LOST 8",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 591,
+      "dano_melee": 1627,
+      "municao": 100,
+      "cadencia_de_tiro": "480-1200",
+      "precisao": "89-587",
+      "alcance": 18.3,
+      "velocidade_personagem": 75,
+      "tempo_recarga": 1.8
+    }
+  },
+  {
+    "id": 15,
+    "nome": "STOPPER",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1179,
+      "dano_melee": 1627,
+      "municao": 105,
+      "cadencia_de_tiro": 630,
+      "precisao": "98-272",
+      "alcance": 19.0,
+      "velocidade_personagem": 90,
+      "tempo_recarga": 5.4
+    }
+  },
+  {
+    "id": 16,
+    "nome": "VANISHER",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 557,
+      "dano_melee": 1627,
+      "municao": 108,
+      "cadencia_de_tiro": "450-1125",
+      "precisao": "92-594",
+      "alcance": 17.3,
+      "velocidade_personagem": 80,
+      "tempo_recarga": 1.6
+    }
+  },
+  {
+    "id": 17,
+    "nome": "MAXIMUS",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1145,
+      "dano_melee": 1627,
+      "municao": 130,
+      "cadencia_de_tiro": 720,
+      "precisao": "87-237",
+      "alcance": 17.0,
+      "velocidade_personagem": 81,
+      "tempo_recarga": 5.4
+    }
+  },
+  {
+    "id": 18,
+    "nome": "SCORCHER",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 603,
+      "dano_melee": 1627,
+      "municao": 105,
+      "cadencia_de_tiro": "390-975",
+      "precisao": "96-613",
+      "alcance": 18.5,
+      "velocidade_personagem": 76,
+      "tempo_recarga": 1.7
+    }
+  },
+  {
+    "id": 19,
+    "nome": "XO-300",
+    "categoria": "Machine Gun",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 577,
+      "dano_melee": 1627,
+      "municao": null,
+      "cadencia_de_tiro": 429,
+      "precisao": 394,
+      "alcance": 16.5,
+      "velocidade_personagem": 77,
+      "tempo_recarga": null
+    }
+  }
+]`;
+
+const pistolRTF = `[
+  {
+    "id": 1,
+    "nome": "DART .45",
+    "categoria": "Pistol",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 2377,
+      "dano_melee": 1395,
+      "municao": 6,
+      "cadencia_de_tiro": 63,
+      "precisao": "377-771",
+      "alcance": 15,
+      "velocidade_personagem": 107,
+      "tempo_recarga": 4.6
+    }
+  },
+  {
+    "id": 2,
+    "nome": "HARTWELL W8",
+    "categoria": "Pistol",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 588,
+      "dano_melee": 1395,
+      "municao": 9,
+      "cadencia_de_tiro": 201,
+      "precisao": "335-553",
+      "alcance": 12,
+      "velocidade_personagem": 96,
+      "tempo_recarga": 2.7
+    }
+  },
+  {
+    "id": 3,
+    "nome": "CXZ-75",
+    "categoria": "Pistol",
+    "raridade": "Comum",
+    "stats": {
+      "dano": 426,
+      "dano_melee": 988,
+      "municao": 10,
+      "cadencia_de_tiro": 180,
+      "precisao": "281-487",
+      "alcance": 11,
+      "velocidade_personagem": 101,
+      "tempo_recarga": 2.9
+    }
+  },
+  {
+    "id": 4,
+    "nome": "FENRIK",
+    "categoria": "Pistol",
+    "raridade": "Comum",
+    "stats": {
+      "dano": 200,
+      "dano_melee": null,
+      "municao": 23,
+      "cadencia_de_tiro": 570,
+      "precisao": 115,
+      "alcance": 10,
+      "velocidade_personagem": 106,
+      "tempo_recarga": 3.1
+    }
+  },
+  {
+    "id": 5,
+    "nome": "VELOS M17",
+    "categoria": "Pistol",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 249,
+      "dano_melee": 1232,
+      "municao": 24,
+      "cadencia_de_tiro": 600,
+      "precisao": 135,
+      "alcance": 11,
+      "velocidade_personagem": 104,
+      "tempo_recarga": 2.9
+    }
+  },
+  {
+    "id": 6,
+    "nome": "LAG-1M",
+    "categoria": "Pistol",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 523,
+      "dano_melee": null,
+      "municao": 10,
+      "cadencia_de_tiro": 192,
+      "precisao": "281-487",
+      "alcance": 13,
+      "velocidade_personagem": 102,
+      "tempo_recarga": 3.1
+    }
+  },
+  {
+    "id": 7,
+    "nome": "CEDAR",
+    "categoria": "Pistol",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 358,
+      "dano_melee": 1641,
+      "municao": 25,
+      "cadencia_de_tiro": 600,
+      "precisao": 181,
+      "alcance": 9.2,
+      "velocidade_personagem": 102,
+      "tempo_recarga": 3.3
+    }
+  },
+  {
+    "id": 8,
+    "nome": "K1914",
+    "categoria": "Pistol",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 717,
+      "dano_melee": 1641,
+      "municao": 10,
+      "cadencia_de_tiro": 180,
+      "precisao": "310-527",
+      "alcance": 10,
+      "velocidade_personagem": 100,
+      "tempo_recarga": 3.0
+    }
+  },
+  {
+    "id": 9,
+    "nome": "GLUCK18-C",
+    "categoria": "Pistol",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 334,
+      "dano_melee": 1641,
+      "municao": 26,
+      "cadencia_de_tiro": 480,
+      "precisao": 155,
+      "alcance": 9.5,
+      "velocidade_personagem": 103,
+      "tempo_recarga": 2.9
+    }
+  },
+  {
+    "id": 10,
+    "nome": "BERTA R106",
+    "categoria": "Pistol",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 703,
+      "dano_melee": 1641,
+      "municao": 11,
+      "cadencia_de_tiro": 192,
+      "precisao": "310-527",
+      "alcance": 11.5,
+      "velocidade_personagem": 98,
+      "tempo_recarga": 3.4
+    }
+  },
+  {
+    "id": 11,
+    "nome": "WHILY",
+    "categoria": "Pistol",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 2702,
+      "dano_melee": 1641,
+      "municao": 6,
+      "cadencia_de_tiro": 78,
+      "precisao": "344-717",
+      "alcance": 16.5,
+      "velocidade_personagem": 106,
+      "tempo_recarga": 5.5
+    }
+  },
+  {
+    "id": 12,
+    "nome": "LUPARA",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 5679,
+      "dano_melee": 2067,
+      "municao": 2,
+      "cadencia_de_tiro": 120,
+      "precisao": 20,
+      "alcance": 8,
+      "velocidade_personagem": 105,
+      "tempo_recarga": 5.0
+    }
+  },
+  {
+    "id": 13,
+    "nome": "MACK",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 441,
+      "dano_melee": 2067,
+      "municao": 25,
+      "cadencia_de_tiro": 540,
+      "precisao": 135,
+      "alcance": 10,
+      "velocidade_personagem": 105,
+      "tempo_recarga": 3.0
+    }
+  },
+  {
+    "id": 14,
+    "nome": "DIRTY ANTON",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 3560,
+      "dano_melee": 2067,
+      "municao": 6,
+      "cadencia_de_tiro": 72,
+      "precisao": "377-771",
+      "alcance": 16,
+      "velocidade_personagem": 105,
+      "tempo_recarga": 5.0
+    }
+  },
+  {
+    "id": 15,
+    "nome": "MC10",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 454,
+      "dano_melee": 2067,
+      "municao": 23,
+      "cadencia_de_tiro": 552,
+      "precisao": 148,
+      "alcance": 10.7,
+      "velocidade_personagem": 107,
+      "tempo_recarga": 3.2
+    }
+  },
+  {
+    "id": 16,
+    "nome": "HEADHOPPER",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 861,
+      "dano_melee": 2067,
+      "municao": 11,
+      "cadencia_de_tiro": 210,
+      "precisao": "335-553",
+      "alcance": 12.5,
+      "velocidade_personagem": 97,
+      "tempo_recarga": 3.3
+    }
+  },
+  {
+    "id": 17,
+    "nome": "NINETECH",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 459,
+      "dano_melee": 2067,
+      "municao": 21,
+      "cadencia_de_tiro": 480,
+      "precisao": 155,
+      "alcance": 9.6,
+      "velocidade_personagem": 106,
+      "tempo_recarga": 2.7
+    }
+  },
+  {
+    "id": 18,
+    "nome": "SPITTER",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 906,
+      "dano_melee": 2067,
+      "municao": 11,
+      "cadencia_de_tiro": 162,
+      "precisao": "255-445",
+      "alcance": 13,
+      "velocidade_personagem": 102,
+      "tempo_recarga": 3.2
+    }
+  },
+  {
+    "id": 19,
+    "nome": "STORMTROOPER",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 3667,
+      "dano_melee": 2067,
+      "municao": 5,
+      "cadencia_de_tiro": 78,
+      "precisao": "445-856",
+      "alcance": 16,
+      "velocidade_personagem": 103,
+      "tempo_recarga": 5.3
+    }
+  },
+  {
+    "id": 20,
+    "nome": "HOLE PUNCHER",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 951,
+      "dano_melee": 2067,
+      "municao": 9,
+      "cadencia_de_tiro": 168,
+      "precisao": "348-566",
+      "alcance": 11.5,
+      "velocidade_personagem": 98,
+      "tempo_recarga": 2.9
+    }
+  },
+  {
+    "id": 21,
+    "nome": "WIDOW MAKER",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 3738,
+      "dano_melee": 2067,
+      "municao": 6,
+      "cadencia_de_tiro": 66,
+      "precisao": "473-885",
+      "alcance": 17,
+      "velocidade_personagem": 103,
+      "tempo_recarga": 5.5
+    }
+  },
+  {
+    "id": 22,
+    "nome": "DICTATOR",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 879,
+      "dano_melee": 2067,
+      "municao": 12,
+      "cadencia_de_tiro": 204,
+      "precisao": "290-501",
+      "alcance": 11,
+      "velocidade_personagem": 100,
+      "tempo_recarga": 3.4
+    }
+  },
+  {
+    "id": 23,
+    "nome": "GOLDEN GLUCK18-C",
+    "categoria": "Pistol",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 428,
+      "dano_melee": 2067,
+      "municao": 28,
+      "cadencia_de_tiro": 480,
+      "precisao": 155,
+      "alcance": 9.5,
+      "velocidade_personagem": 103,
+      "tempo_recarga": 3.0
+    }
+  }
+]`;
+
+const meleeRTF = `[
+  {
+    "id": 1,
+    "nome": "SPLITJAW",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 6384,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 51,
+      "precisao": null,
+      "alcance": 2.15,
+      "velocidade_personagem": 96,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 2,
+    "nome": "STRIKEPIN",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 3342,
+      "dano_melee": 730,
+      "municao": 2,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 7.0,
+      "velocidade_personagem": 98,
+      "tempo_recarga": 6.6
+    }
+  },
+  {
+    "id": 3,
+    "nome": "KNELL",
+    "categoria": "Melee",
+    "raridade": "Comum",
+    "stats": {
+      "dano": 4751,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 48,
+      "precisao": null,
+      "alcance": 2.05,
+      "velocidade_personagem": 95,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 4,
+    "nome": "BLACKRIDGE",
+    "categoria": "Melee",
+    "raridade": "Incomum",
+    "stats": {
+      "dano": 5664,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 48,
+      "precisao": null,
+      "alcance": 2.05,
+      "velocidade_personagem": 98,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 5,
+    "nome": "ZIGGY",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 3755,
+      "dano_melee": 857,
+      "municao": 2,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 7.6,
+      "velocidade_personagem": 98,
+      "tempo_recarga": 6.7
+    }
+  },
+  {
+    "id": 6,
+    "nome": "MACHETE",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 7510,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 48,
+      "precisao": null,
+      "alcance": 2.0,
+      "velocidade_personagem": 97,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 7,
+    "nome": "COMPOSITE SLASHER",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 3605,
+      "dano_melee": 891,
+      "municao": 2,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 9.5,
+      "velocidade_personagem": 97,
+      "tempo_recarga": 7.4
+    }
+  },
+  {
+    "id": 8,
+    "nome": "SHUANGOU",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 7135,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 58,
+      "precisao": null,
+      "alcance": 2.0,
+      "velocidade_personagem": 100,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 9,
+    "nome": "HEAD CUTTER",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 3830,
+      "dano_melee": 857,
+      "municao": 2,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 8.0,
+      "velocidade_personagem": 96,
+      "tempo_recarga": 6.8
+    }
+  },
+  {
+    "id": 10,
+    "nome": "CANDY CANE",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 7285,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 52,
+      "precisao": null,
+      "alcance": 2.1,
+      "velocidade_personagem": 97,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 11,
+    "nome": "KATANA",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 7360,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 56,
+      "precisao": null,
+      "alcance": 2.1,
+      "velocidade_personagem": 95,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 12,
+    "nome": "REAPER",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 3530,
+      "dano_melee": 910,
+      "municao": 2,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 7.0,
+      "velocidade_personagem": 100,
+      "tempo_recarga": 6.5
+    }
+  },
+  {
+    "id": 13,
+    "nome": "PREADTOR'S FANG",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 3830,
+      "dano_melee": 857,
+      "municao": 2,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 9.0,
+      "velocidade_personagem": 96,
+      "tempo_recarga": 7.2
+    }
+  },
+  {
+    "id": 14,
+    "nome": "DESPAIR",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 7210,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 52,
+      "precisao": null,
+      "alcance": 1.95,
+      "velocidade_personagem": 97,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 15,
+    "nome": "BATON",
+    "categoria": "Melee",
+    "raridade": "Raro",
+    "stats": {
+      "dano": 7510,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 45,
+      "precisao": null,
+      "alcance": 2.0,
+      "velocidade_personagem": 100,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 16,
+    "nome": "C-T",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4649,
+      "dano_melee": 1060,
+      "municao": 8,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 7.3,
+      "velocidade_personagem": 94,
+      "tempo_recarga": 6.4
+    }
+  },
+  {
+    "id": 17,
+    "nome": "CLEAVER",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 8647,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 65,
+      "precisao": null,
+      "alcance": 1.85,
+      "velocidade_personagem": 102,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 18,
+    "nome": "TROCKY",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 5114,
+      "dano_melee": 985,
+      "municao": 8,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 8.7,
+      "velocidade_personagem": 95,
+      "tempo_recarga": 7.2
+    }
+  },
+  {
+    "id": 19,
+    "nome": "ARMATURE",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 9949,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 37,
+      "precisao": null,
+      "alcance": 2.05,
+      "velocidade_personagem": 90,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 20,
+    "nome": "THROWING KNIVES",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4649,
+      "dano_melee": 1060,
+      "municao": 8,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 8.0,
+      "velocidade_personagem": 97,
+      "tempo_recarga": 7.0
+    }
+  },
+  {
+    "id": 21,
+    "nome": "TACTICAL SHOVEL",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4974,
+      "dano_melee": 1060,
+      "municao": 8,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 8.6,
+      "velocidade_personagem": 94,
+      "tempo_recarga": 7.3
+    }
+  },
+  {
+    "id": 22,
+    "nome": "E-BLADE",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 8740,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 60,
+      "precisao": null,
+      "alcance": 2.05,
+      "velocidade_personagem": 100,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 23,
+    "nome": "GENTLE KISS",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 9484,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 44,
+      "precisao": null,
+      "alcance": 2.15,
+      "velocidade_personagem": 96,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 24,
+    "nome": "SEMPAI",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4510,
+      "dano_melee": 1028,
+      "municao": 8,
+      "cadencia_de_tiro": null,
+      "precisao": null,
+      "alcance": 7.5,
+      "velocidade_personagem": 95,
+      "tempo_recarga": 7.2
+    }
+  },
+  {
+    "id": 25,
+    "nome": "SURVIVAL TOOL",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 9763,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 42,
+      "precisao": null,
+      "alcance": 2.2,
+      "velocidade_personagem": 95,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 26,
+    "nome": "ANCHOR",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 5346,
+      "dano_melee": 955,
+      "municao": 8,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 9.0,
+      "velocidade_personagem": 94,
+      "tempo_recarga": 7.1
+    }
+  },
+  {
+    "id": 27,
+    "nome": "CANDY CANE GOLD",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 8833,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 52,
+      "precisao": null,
+      "alcance": 2.1,
+      "velocidade_personagem": 98,
+      "tempo_recarga": null
+    }
+  },
+  {
+    "id": 28,
+    "nome": "HORROR",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 4835,
+      "dano_melee": 1060,
+      "municao": 8,
+      "cadencia_de_tiro": null,
+      "precisao": "171-310",
+      "alcance": 7.7,
+      "velocidade_personagem": 95,
+      "tempo_recarga": 6.5
+    }
+  },
+  {
+    "id": 29,
+    "nome": "HOPE",
+    "categoria": "Melee",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 8833,
+      "dano_melee": null,
+      "municao": null,
+      "cadencia_de_tiro": 55,
+      "precisao": null,
+      "alcance": 1.9,
+      "velocidade_personagem": 97,
+      "tempo_recarga": null
+    }
+  }
+]`;
+
+const prototypesRTF = `[
+  {
+    "id": 1,
+    "nome": "TAMM",
+    "categoria": "Prototype",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 8798,
+      "dano_melee": 2067,
+      "municao": 2,
+      "cadencia_de_tiro": 72,
+      "precisao": null,
+      "alcance": 17,
+      "velocidade_personagem": 77,
+      "tempo_recarga": 1.8,
+      "burn": null,
+      "fuel": null
+    }
+  },
+  {
+    "id": 2,
+    "nome": "MRA3-6",
+    "categoria": "Prototype",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1567,
+      "dano_melee": 2068,
+      "municao": 10,
+      "cadencia_de_tiro": 300,
+      "precisao": null,
+      "alcance": 13,
+      "velocidade_personagem": 90,
+      "tempo_recarga": null,
+      "burn": 2059,
+      "fuel": 7020
+    }
+  },
+  {
+    "id": 3,
+    "nome": "SO TOXIC",
+    "categoria": "Prototype",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 1614,
+      "dano_melee": 2068,
+      "municao": 8,
+      "cadencia_de_tiro": 300,
+      "precisao": null,
+      "alcance": 13,
+      "velocidade_personagem": 88,
+      "tempo_recarga": null,
+      "burn": 2112,
+      "fuel": 7200
+    }
+  },
+  {
+    "id": 4,
+    "nome": "ROACH",
+    "categoria": "Prototype",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 11844,
+      "dano_melee": 2068,
+      "municao": 1,
+      "cadencia_de_tiro": null,
+      "precisao": 173,
+      "alcance": 10,
+      "velocidade_personagem": 90,
+      "tempo_recarga": null,
+      "burn": null,
+      "fuel": null
+    }
+  },
+  {
+    "id": 5,
+    "nome": "GRIMER",
+    "categoria": "Prototype",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 12201,
+      "dano_melee": 2068,
+      "municao": 1,
+      "cadencia_de_tiro": null,
+      "precisao": 173,
+      "alcance": 10,
+      "velocidade_personagem": 93,
+      "tempo_recarga": null,
+      "burn": null,
+      "fuel": null
+    }
+  },
+  {
+    "id": 6,
+    "nome": "MAXWELL",
+    "categoria": "Prototype",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 8275,
+      "dano_melee": 2067,
+      "municao": 2,
+      "cadencia_de_tiro": 81,
+      "precisao": null,
+      "alcance": 17,
+      "velocidade_personagem": 84,
+      "tempo_recarga": 1.7,
+      "burn": null,
+      "fuel": null
+    }
+  },
+  {
+    "id": 7,
+    "nome": "DRAGON WARTH",
+    "categoria": "Prototype",
+    "raridade": "Épico",
+    "stats": {
+      "dano": 11487,
+      "dano_melee": 2068,
+      "municao": 1,
+      "cadencia_de_tiro": null,
+      "precisao": 173,
+      "alcance": 10,
+      "velocidade_personagem": 87,
+      "tempo_recarga": null,
+      "burn": null,
+      "fuel": null
+    }
+  }
+]`;
+
+// Parse all weapon data
 export const tacticoolWeapons: Record<string, Weapon[]> = {
-  "Assault Rifle": [
-    {
-      id: 1,
-      name: "K-TRAC 5.8",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/K-Trac_5.8.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "601" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "978" },
-        { icon: "fas fa-bolt", label: "Munição", value: "37" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "402" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "275-655" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "14.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "88" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.2" }
-      ]
-    },
-    {
-      id: 2,
-      name: "ARCHLIGHT 56",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Archlight_56.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "759" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "978" },
-        { icon: "fas fa-bolt", label: "Munição", value: "26" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "262" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "158-885" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17.4" },
-        { icon: "fas fa-running", label: "Velocidade", value: "91" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.3" }
-      ]
-    },
-    {
-      id: 3,
-      name: "MAS-47",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Comum",
-      stars: 5,
-      image: "/weapons/MAS-47.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "401" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "692" },
-        { icon: "fas fa-bolt", label: "Munição", value: "35" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "408" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "290-676" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "16.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "89" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.3" }
-      ]
-    },
-    {
-      id: 4,
-      name: "KRAIT",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/Krait.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "655" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "863" },
-        { icon: "fas fa-bolt", label: "Munição", value: "26" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "271" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "158-885" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "91" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.3" }
-      ]
-    },
-    {
-      id: 5,
-      name: "FALCON A4",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/Falcon_A4.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "541" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "863" },
-        { icon: "fas fa-bolt", label: "Munição", value: "34" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "438" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "253-624" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "15.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "92" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.5" }
-      ]
-    },
-    {
-      id: 6,
-      name: "QQ-95",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/QQ-95.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "911" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1150" },
-        { icon: "fas fa-bolt", label: "Munição", value: "27" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "264" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "117-798" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "88" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.4" }
-      ]
-    },
-    {
-      id: 7,
-      name: "GIDEON",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Gideon.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "683" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1150" },
-        { icon: "fas fa-bolt", label: "Munição", value: "37" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "420" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "280-662" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "15.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.5" }
-      ]
-    },
-    {
-      id: 8,
-      name: "KULT-M",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Kult-M.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "893" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1150" },
-        { icon: "fas fa-bolt", label: "Munição", value: "27" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "268" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "122-809" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.4" }
-      ]
-    },
-    {
-      id: 9,
-      name: "VFX150",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/VFX150.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "683" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1150" },
-        { icon: "fas fa-bolt", label: "Munição", value: "36" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "420" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "275-655" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "15.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.4" }
-      ]
-    },
-    {
-      id: 10,
-      name: "AUCH",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/AUCH.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1052" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "28" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "264" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "130-827" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.45" }
-      ]
-    },
-    {
-      id: 11,
-      name: "KANZAZ",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/KANZAZ.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "866" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "34" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "408" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "265-641" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "16.4" },
-        { icon: "fas fa-running", label: "Velocidade", value: "91" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.6" }
-      ]
-    },
-    {
-      id: 12,
-      name: "IAR-21",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/IAR-21.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1052" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "29" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "261" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "150-868" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "19.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "89" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.5" }
-      ]
-    },
-    {
-      id: 13,
-      name: "VAKTOR",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Vaktor.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "909" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "33" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "360" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "290-676" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "88" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.4" }
-      ]
-    },
-    {
-      id: 14,
-      name: "E2 PARAJUMPER",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/E2_Parajumper.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1244" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "24" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "257" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "130-827" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "19.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "86" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.3" }
-      ]
-    },
-    {
-      id: 15,
-      name: "OLD WAR",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Old_War.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "779" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "36" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "450" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "228-592" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "14.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "92" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.3" }
-      ]
-    },
-    {
-      id: 16,
-      name: "ECLIPSE",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Eclipse.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1074" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "29" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "274" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "103-771" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "16.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "87" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.6" }
-      ]
-    },
-    {
-      id: 17,
-      name: "GREMLIN",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Gremlin.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "823" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "39" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "450" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "265-641" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "15.4" },
-        { icon: "fas fa-running", label: "Velocidade", value: "92" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.5" }
-      ]
-    },
-    {
-      id: 18,
-      name: "QQ-95 GOLD",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/QQ-95_Gold.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1188" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "28" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "264" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "117-798" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "88" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.5" }
-      ]
-    },
-    {
-      id: 19,
-      name: "SPAR-M8",
-      category: "Assault Rifle",
-      primary: "ARMA PRIMÁRIA: ASSAULT RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/SparM8.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "907" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1448" },
-        { icon: "fas fa-bolt", label: "Munição", value: "35" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "139-924" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "275-655" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "15.4" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "0.65-2.6" }
-      ]
-    }
-  ],
-  "SMG": [
-    {
-      id: 20,
-      name: "HALBERD V10",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Halberd_V10.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "404" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1136" },
-        { icon: "fas fa-bolt", label: "Munição", value: "29" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "564" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "360" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.2" }
-      ]
-    },
-    {
-      id: 21,
-      name: "ECHELON R",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Echelon_R.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "385" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1136" },
-        { icon: "fas fa-bolt", label: "Munição", value: "29" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "564" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "360" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.2" }
-      ]
-    },
-    {
-      id: 22,
-      name: "TAMO 220",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Comum",
-      stars: 5,
-      image: "/weapons/Tamo_22c.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "277" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "811" },
-        { icon: "fas fa-bolt", label: "Munição", value: "32" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "522" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "319" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "14.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.1" }
-      ]
-    },
-    {
-      id: 23,
-      name: "KPD-45",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/KPD-45.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "333" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1008" },
-        { icon: "fas fa-bolt", label: "Munição", value: "30" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "558" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "327" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "101" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.0" }
-      ]
-    },
-    {
-      id: 24,
-      name: "BOZON",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/BOZON.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "441" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1337" },
-        { icon: "fas fa-bolt", label: "Munição", value: "34" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "510" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "360" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "14.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.5" }
-      ]
-    },
-    {
-      id: 25,
-      name: "PTU80",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/PTU80.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "464" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1337" },
-        { icon: "fas fa-bolt", label: "Munição", value: "31" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "540" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "334" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "14.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.1" }
-      ]
-    },
-    {
-      id: 26,
-      name: "SM50",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/SM50.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "496" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1337" },
-        { icon: "fas fa-bolt", label: "Munição", value: "31" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "468" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "319" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.0" }
-      ]
-    },
-    {
-      id: 27,
-      name: "PZD C",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/PZD_C.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "588" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "31" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "522" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "339" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "13.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.1" }
-      ]
-    },
-    {
-      id: 28,
-      name: "BKS 9/19",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/BK_9_9.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "617" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "27" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "630" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "284" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11" },
-        { icon: "fas fa-running", label: "Velocidade", value: "110" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.7" }
-      ]
-    },
-    {
-      id: 29,
-      name: "COMPACT-12",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Compact-12.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "588" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "29" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "510" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "385" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "14.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "99" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.1" }
-      ]
-    },
-    {
-      id: 30,
-      name: "CAMELBACK",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Camelback.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "559" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "32" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "558" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "344" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "14.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.3" }
-      ]
-    },
-    {
-      id: 31,
-      name: "KLTR",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/KLTR.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "671" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "6494" },
-        { icon: "fas fa-bolt", label: "Munição", value: "51" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "480" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "284" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "115" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.2" }
-      ]
-    },
-    {
-      id: 32,
-      name: "KURT",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Kurt.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "606" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "29" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "510" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "334" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "102" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.9" }
-      ]
-    },
-    {
-      id: 33,
-      name: "FERRET-A",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Ferret-A.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "666" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "35" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "540" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "327" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2" }
-      ]
-    },
-    {
-      id: 34,
-      name: "CORVET",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Covert.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "699" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "30" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "480" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "445" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "10.8" },
-        { icon: "fas fa-running", label: "Velocidade", value: "104" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.2" }
-      ]
-    },
-    {
-      id: 35,
-      name: "FLASH TO FLESH",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Flash_To_Flesh.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "547" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "32" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "630" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "101" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.2" }
-      ]
-    },
-    {
-      id: 156,
-      name: "MPM IRONHEAD",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/MPMIRONHEAD.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "651" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "6824" },
-        { icon: "fas fa-bolt", label: "Munição", value: "49" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "438" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "296" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "10.4" },
-        { icon: "fas fa-running", label: "Velocidade", value: "119" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.1" }
-      ]
-    },
-    {
-      id: 36,
-      name: "DERF SQUIRT MASTER",
-      category: "SMG",
-      primary: "ARMA PRIMÁRIA: SMG",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Derf_Squirt_Master.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "673" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1680" },
-        { icon: "fas fa-bolt", label: "Munição", value: "33" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "600" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "284" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11" },
-        { icon: "fas fa-running", label: "Velocidade", value: "102" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.3" }
-      ]
-    }
-  ],
-  "Shotgun": [
-    {
-      id: 37,
-      name: "OXHEAD",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Oxhead.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "5366" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1395" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "114" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "135" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.2" }
-      ]
-    },
-    {
-      id: 38,
-      name: "REAVER M30",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Beaver_M30.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4320" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1395" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "108" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "47" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "99" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.2" }
-      ]
-    },
-    {
-      id: 39,
-      name: "SKAT-A",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Comum",
-      stars: 5,
-      image: "/weapons/Skat-A.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3225" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "988" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "102" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "27" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.2" }
-      ]
-    },
-    {
-      id: 40,
-      name: "VEGA DT",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/Vega-DT.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4708" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1047" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "96" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "162" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "6.8" },
-        { icon: "fas fa-running", label: "Velocidade", value: "99" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.6" }
-      ]
-    },
-    {
-      id: 41,
-      name: "TYR-9",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/TYR-9.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3928" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1232" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "84" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "42" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.6" }
-      ]
-    },
-    {
-      id: 42,
-      name: "OOPS15",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/OOPS15.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "5637" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "5" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "84" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "30" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.2" }
-      ]
-    },
-    {
-      id: 43,
-      name: "REMMY 14",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Remmy_14.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "6555" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "90" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "98" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.4" }
-      ]
-    },
-    {
-      id: 44,
-      name: "UU-10",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/UU-10.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "5268" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "90" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "37" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.0" }
-      ]
-    },
-    {
-      id: 45,
-      name: "GRANDMASTER",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/GrandMaster.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "5997" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "105" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "87" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "110" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.4" }
-      ]
-    },
-    {
-      id: 46,
-      name: "PAS6",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/PAS6.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "6320" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "8" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "75" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "20" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.4" },
-        { icon: "fas fa-running", label: "Velocidade", value: "99" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.4" }
-      ]
-    },
-    {
-      id: 47,
-      name: "PUNCHER",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Puncher.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "6986" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "5" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "84" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "48" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "94" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.4" }
-      ]
-    },
-    {
-      id: 48,
-      name: "THUNDER",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Thunder.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "7892" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "102" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "148" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "6.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "101" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.7" }
-      ]
-    },
-    {
-      id: 49,
-      name: "SOURCE",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Source.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "6653" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "78" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "44" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "95" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.15" }
-      ]
-    },
-    {
-      id: 50,
-      name: "HAIL",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Hail.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "8371" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "105" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "108" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "5.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "102" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.6" }
-      ]
-    },
-    {
-      id: 51,
-      name: "XL20",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/XL20.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "7972" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "105" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "135" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "99" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.0" }
-      ]
-    },
-    {
-      id: 52,
-      name: "SHORTY",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Shorty.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "5988" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "120" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "44" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "99" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.3" }
-      ]
-    },
-    {
-      id: 53,
-      name: "RIO BRAVO",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Rio_Bravo.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "7573" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "135" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "102" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.4" }
-      ]
-    },
-    {
-      id: 54,
-      name: "FURN-S",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Furn-S.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4257" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "4" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "78" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "44" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "92" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.4" },
-        { icon: "fas fa-fire", label: "Burn", value: "2059" }
-      ]
-    },
-    {
-      id: 55,
-      name: "DM-SG",
-      category: "Shotgun",
-      primary: "ARMA PRIMÁRIA: SHOTGUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/DM-SG.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "6320" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "8" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "120" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "27" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.4" }
-      ]
-    }
-  ],
-  "Sniper Rifle": [
-    {
-      id: 56,
-      name: "TALON S4",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Talon_S4.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "2405" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "817" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "61" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "569-911" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "22.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "85" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.8" }
-      ]
-    },
-    {
-      id: 57,
-      name: "TITAN S1",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Titan_S1.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "2685" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "817" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "75" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "197-990" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "81" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.2" }
-      ]
-    },
-    {
-      id: 58,
-      name: "VLR-12",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Comum",
-      stars: 5,
-      image: "/weapons/VLR-12.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1791" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "486" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "66" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "185-972" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "26.4" },
-        { icon: "fas fa-running", label: "Velocidade", value: "80" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.9" }
-      ]
-    },
-    {
-      id: 59,
-      name: "ARX-204",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/ARX-204.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "2056" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "610" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "59" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "583-925" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.8" },
-        { icon: "fas fa-running", label: "Velocidade", value: "84" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.5" }
-      ]
-    },
-    {
-      id: 60,
-      name: "HOWL",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/Howl.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "2394" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "610" },
-        { icon: "fas fa-bolt", label: "Munição", value: "8" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "76" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "132-885" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "25.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "78" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.4" }
-      ]
-    },
-    {
-      id: 61,
-      name: "CT 200M",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/CT200M.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "2936" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "961" },
-        { icon: "fas fa-bolt", label: "Munição", value: "5" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "54" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "632-967" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "88" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.6" }
-      ]
-    },
-    {
-      id: 62,
-      name: "TICKLE X3",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Tickle_X3.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3001" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "961" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "73" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "132-885" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.8" },
-        { icon: "fas fa-running", label: "Velocidade", value: "82" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.0" }
-      ]
-    },
-    {
-      id: 63,
-      name: "MX2020",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/MX2020.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "2796" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "961" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "60" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "592-935" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "23.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "87" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.4" }
-      ]
-    },
-    {
-      id: 64,
-      name: "AW",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/AW.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3159" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "961" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "70" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "176-958" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "25.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "80" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.1" }
-      ]
-    },
-    {
-      id: 65,
-      name: "MIMI 15",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/MIMI_15.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3453" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "57" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "547-885" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "20.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "84" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.45" }
-      ]
-    },
-    {
-      id: 66,
-      name: "BULLSEYE",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Bullseye.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4223" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "60" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "162-935" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "77" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.1" }
-      ]
-    },
-    {
-      id: 67,
-      name: "GF 24",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/GF_24.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3738" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "53" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "650-981" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.8" },
-        { icon: "fas fa-running", label: "Velocidade", value: "82" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.85" }
-      ]
-    },
-    {
-      id: 68,
-      name: "ATHENA",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Athena.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3740" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "8" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "78" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "162-935" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "23.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "84" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.3" }
-      ]
-    },
-    {
-      id: 69,
-      name: "FR USTR8",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/FR_USTR8.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3560" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "57" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "620-958" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "85" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.5" }
-      ]
-    },
-    {
-      id: 70,
-      name: "OSIRIS",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Osiris.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4304" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "60" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "185-972" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "26.4" },
-        { icon: "fas fa-running", label: "Velocidade", value: "77" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.4" }
-      ]
-    },
-    {
-      id: 71,
-      name: "SEE ME NOT",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/SeeMeNot.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3453" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "55" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "632-967" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "25.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "82" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.8" }
-      ]
-    },
-    {
-      id: 72,
-      name: "LONGSHOT-6",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Longshot-6.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4304" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "63" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "191-981" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "27.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "78" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.3" }
-      ]
-    },
-    {
-      id: 73,
-      name: "DOOM-INJECT .25",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Doom-Inject25.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1016" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "1" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "385-1000" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "85" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.35" },
-        { icon: "fas fa-tint", label: "Bleed", value: "1637" }
-      ]
-    },
-    {
-      id: 74,
-      name: "MP200",
-      category: "Sniper Rifle",
-      primary: "ARMA PRIMÁRIA: SNIPER RIFLE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/MP200.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "688" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1214" },
-        { icon: "fas fa-bolt", label: "Munição", value: "22" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "424" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "771-935" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "23.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "99" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.2" }
-      ]
-    }
-  ],
-  "Machine Gun": [
-    {
-      id: 75,
-      name: "GRINDCORE",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Grindcore.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "376" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1096" },
-        { icon: "fas fa-bolt", label: "Munição", value: "130" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "384-960" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "76-540" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "84" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.1" }
-      ]
-    },
-    {
-      id: 76,
-      name: "PILLAR-2",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Pillar-2.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "786" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1096" },
-        { icon: "fas fa-bolt", label: "Munição", value: "115" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "708" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "112-290" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "16.8" },
-        { icon: "fas fa-running", label: "Velocidade", value: "81" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.5" }
-      ]
-    },
-    {
-      id: 77,
-      name: "NM-11",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Comum",
-      stars: 5,
-      image: "/weapons/NM-11.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "520" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "770" },
-        { icon: "fas fa-bolt", label: "Munição", value: "125" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "612" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "85-230" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "19.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "84" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.9" }
-      ]
-    },
-    {
-      id: 78,
-      name: "OHM-8",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/OHM-8.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "690" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "964" },
-        { icon: "fas fa-bolt", label: "Munição", value: "110" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "660" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "90-248" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "86" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.0" }
-      ]
-    },
-    {
-      id: 79,
-      name: "M-TORQ",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/M-TORQ.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "336" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "964" },
-        { icon: "fas fa-bolt", label: "Munição", value: "105" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "420-1050" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "87-579" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "82" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.9" }
-      ]
-    },
-    {
-      id: 80,
-      name: "MM66",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/MM66.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "904" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1289" },
-        { icon: "fas fa-bolt", label: "Munição", value: "115" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "660" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "94-258" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "84" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.1" }
-      ]
-    },
-    {
-      id: 81,
-      name: "GOSHAN",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Goshan.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "467" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1289" },
-        { icon: "fas fa-bolt", label: "Munição", value: "105" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "402-1005" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "98-624" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "82" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.7" }
-      ]
-    },
-    {
-      id: 82,
-      name: "PRK",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/PRK.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "904" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1289" },
-        { icon: "fas fa-bolt", label: "Munição", value: "110" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "648" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "94-258" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "86" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.1" }
-      ]
-    },
-    {
-      id: 83,
-      name: "FAULKNER",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Faulkner.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "949" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1289" },
-        { icon: "fas fa-bolt", label: "Munição", value: "105" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "600" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "92-251" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "88" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.4" }
-      ]
-    },
-    {
-      id: 84,
-      name: "TRIGUN",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Trigun.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "439" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1289" },
-        { icon: "fas fa-bolt", label: "Munição", value: "125" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "450-1125" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "92-594" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "19.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "70" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.3" }
-      ]
-    },
-    {
-      id: 85,
-      name: "POLOVEC",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Polovec.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1111" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "103" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "630" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "102-279" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "19.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "88" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.0" }
-      ]
-    },
-    {
-      id: 86,
-      name: "ROTOGUN",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Rotogun.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "574" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "115" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "420-1050" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "87-579" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "77" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.8" }
-      ]
-    },
-    {
-      id: 87,
-      name: "B-FIVE-ONE",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/B-Five-One.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1065" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "125" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "690" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "90-248" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "80" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.6" }
-      ]
-    },
-    {
-      id: 88,
-      name: "LOST 8",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Lost8.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "591" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "100" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "480-1200" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "89-587" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "75" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.8" }
-      ]
-    },
-    {
-      id: 89,
-      name: "STOPPER",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Stopper.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1179" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "105" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "630" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "98-272" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "19.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.4" }
-      ]
-    },
-    {
-      id: 90,
-      name: "VANISHER",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Vanisher.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "557" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "108" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "450-1125" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "92-594" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "80" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.6" }
-      ]
-    },
-    {
-      id: 91,
-      name: "MAXIMUS",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Maximus.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "1145" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "130" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "720" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "87-237" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "81" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.4" }
-      ]
-    },
-    {
-      id: 92,
-      name: "SCORCHER",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Scorcher.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "603" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "105" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "390-975" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "96-613" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "18.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "76" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.7" }
-      ]
-    },
-    {
-      id: 93,
-      name: "XO-300",
-      category: "Machine Gun",
-      primary: "ARMA PRIMÁRIA: MACHINE GUN",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/XO-300.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "577" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1627" },
-        { icon: "fas fa-bolt", label: "Munição", value: "∞" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "429" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "394" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "16.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "77" }
-      ]
-    }
-  ],
-  "Pistols": [
-    {
-      id: 94,
-      name: "DART .45",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Dart45.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "2377" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1395" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "63" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "377-771" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "15" },
-        { icon: "fas fa-running", label: "Velocidade", value: "107" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "4.6" }
-      ]
-    },
-    {
-      id: 95,
-      name: "HARTWELL W8",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/HartwellW8.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "588" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1395" },
-        { icon: "fas fa-bolt", label: "Munição", value: "9" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "201" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "335-553" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.7" }
-      ]
-    },
-    {
-      id: 96,
-      name: "CXZ-75",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Comum",
-      stars: 5,
-      image: "/weapons/CXZ75.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "426" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "988" },
-        { icon: "fas fa-bolt", label: "Munição", value: "10" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "180" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "281-487" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11" },
-        { icon: "fas fa-running", label: "Velocidade", value: "101" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.9" }
-      ]
-    },
-    {
-      id: 97,
-      name: "FENRIK",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Comum",
-      stars: 5,
-      image: "/weapons/Fenrik.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "200" },
-        { icon: "fas fa-bolt", label: "Munição", value: "23" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "570" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "115" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "10" },
-        { icon: "fas fa-running", label: "Velocidade", value: "106" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.1" }
-      ]
-    },
-    {
-      id: 98,
-      name: "VELOS M17",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/VelosM17.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "249" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1232" },
-        { icon: "fas fa-bolt", label: "Munição", value: "24" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "600" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "135" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11" },
-        { icon: "fas fa-running", label: "Velocidade", value: "104" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.9" }
-      ]
-    },
-    {
-      id: 99,
-      name: "LAG-1M",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/Lag-1M.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "523" },
-        { icon: "fas fa-bolt", label: "Munição", value: "10" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "192" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "281-487" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "13" },
-        { icon: "fas fa-running", label: "Velocidade", value: "102" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.1" }
-      ]
-    },
-    {
-      id: 100,
-      name: "CEDAR",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Cedar.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "358" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "25" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "600" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "181" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "102" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.3" }
-      ]
-    },
-    {
-      id: 101,
-      name: "K1914",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/K1914.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "717" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "10" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "180" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "310-527" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "10" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.0" }
-      ]
-    },
-    {
-      id: 102,
-      name: "GLUCK18-C",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Gluck18-C.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "334" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "26" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "480" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "155" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "103" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.9" }
-      ]
-    },
-    {
-      id: 103,
-      name: "BERTA R101",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/BertaR101.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "703" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "11" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "192" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "310-527" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.4" }
-      ]
-    },
-    {
-      id: 104,
-      name: "WHILY",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Whily.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "2702" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1641" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "78" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "344-717" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "16.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "106" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.5" }
-      ]
-    },
-    {
-      id: 105,
-      name: "LUPARA",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Lupara.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "5679" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "120" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "20" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8" },
-        { icon: "fas fa-running", label: "Velocidade", value: "105" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.0" }
-      ]
-    },
-    {
-      id: 106,
-      name: "MACK",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/MACK.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "441" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "25" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "540" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "135" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "10" },
-        { icon: "fas fa-running", label: "Velocidade", value: "105" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.0" }
-      ]
-    },
-    {
-      id: 107,
-      name: "DIRTY ANTON",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/DirtyAnton.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3560" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "72" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "377-771" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "16" },
-        { icon: "fas fa-running", label: "Velocidade", value: "105" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.0" }
-      ]
-    },
-    {
-      id: 108,
-      name: "MC10",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/MC10.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "454" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "23" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "552" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "148" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "10.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "107" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.2" }
-      ]
-    },
-    {
-      id: 109,
-      name: "HEADHOPPER",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/HeadHopper.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "861" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "11" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "210" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "335-553" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "12.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.3" }
-      ]
-    },
-    {
-      id: 110,
-      name: "NINETECH",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Ninetech.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "459" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "21" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "480" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "155" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "106" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.7" }
-      ]
-    },
-    {
-      id: 111,
-      name: "SPITTER",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Spitter.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "906" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "11" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "162" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "255-445" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "13" },
-        { icon: "fas fa-running", label: "Velocidade", value: "102" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.2" }
-      ]
-    },
-    {
-      id: 112,
-      name: "STORMTROOPER",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Stormtrooper.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3667" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "5" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "78" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "445-856" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "16" },
-        { icon: "fas fa-running", label: "Velocidade", value: "103" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.3" }
-      ]
-    },
-    {
-      id: 113,
-      name: "HOLE PUNCHER",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/HolePuncher.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "951" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "9" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "168" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "348-566" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "2.9" }
-      ]
-    },
-    {
-      id: 114,
-      name: "WIDOW MAKER",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/WidowMaker.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3738" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "66" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "473-885" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17" },
-        { icon: "fas fa-running", label: "Velocidade", value: "103" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.5" }
-      ]
-    },
-    {
-      id: 115,
-      name: "DICTATOR",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Dictator.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "879" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "12" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "204" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "290-501" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "11" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.4" }
-      ]
-    },
-    {
-      id: 116,
-      name: "GOLDEN GLUCK18-C",
-      category: "Pistols",
-      primary: "ARMA SECUNDÁRIA: PISTOL",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/GoldenGluck18-C.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "428" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "28" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "480" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "155" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "103" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "3.0" }
-      ]
-    }
-  ],
-  "Melee": [
-    {
-      id: 117,
-      name: "SPLITJAW",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Splitjaw.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "6384" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "51" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.15" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" }
-      ]
-    },
-    {
-      id: 118,
-      name: "STRIKEPIN",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Strikepin.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3342" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "730" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "6.6" }
-      ]
-    },
-    {
-      id: 119,
-      name: "KNELL",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Comum",
-      stars: 5,
-      image: "/weapons/Knell.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "4751" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "48" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.05" },
-        { icon: "fas fa-running", label: "Velocidade", value: "95" }
-      ]
-    },
-    {
-      id: 120,
-      name: "BLACKRIDGE",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Incomum",
-      stars: 5,
-      image: "/weapons/Blackridge.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "5664" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "48" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.05" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" }
-      ]
-    },
-    {
-      id: 121,
-      name: "ZIGGY",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Ziggy.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3755" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "857" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "6.7" }
-      ]
-    },
-    {
-      id: 122,
-      name: "MACHETE",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Machete.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "7510" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "48" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" }
-      ]
-    },
-    {
-      id: 123,
-      name: "COMPOSITE SLASHER",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/CompositeSlasher.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3605" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "891" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "7.4" }
-      ]
-    },
-    {
-      id: 124,
-      name: "SHUANGOU",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Shuangou.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "7135" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "58" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" }
-      ]
-    },
-    {
-      id: 125,
-      name: "HEAD CUTTER",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Headcutter.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3830" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "857" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "6.8" }
-      ]
-    },
-    {
-      id: 126,
-      name: "CANDY CANE",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/CandyCane.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "7285" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "52" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" }
-      ]
-    },
-    {
-      id: 127,
-      name: "KATANA",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Katana.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "7360" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "56" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "95" }
-      ]
-    },
-    {
-      id: 128,
-      name: "REAPER",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Reaper.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3530" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "910" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "6.5" }
-      ]
-    },
-    {
-      id: 129,
-      name: "PREDATOR'S FANG",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/PredatorsFang.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "3830" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "857" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "7.2" }
-      ]
-    },
-    {
-      id: 130,
-      name: "DESPAIR",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Despair.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "7210" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "52" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "1.95" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" }
-      ]
-    },
-    {
-      id: 131,
-      name: "BATON",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Raro",
-      stars: 5,
-      image: "/weapons/Baton.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "7510" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "45" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" }
-      ]
-    },
-    {
-      id: 132,
-      name: "C-T",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/C-T.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4649" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1060" },
-        { icon: "fas fa-bolt", label: "Munição", value: "8" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.3" },
-        { icon: "fas fa-running", label: "Velocidade", value: "94" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "6.4" }
-      ]
-    },
-    {
-      id: 133,
-      name: "CLEAVER",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Cleaver.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "8647" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "65" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "1.85" },
-        { icon: "fas fa-running", label: "Velocidade", value: "102" }
-      ]
-    },
-    {
-      id: 134,
-      name: "TROCKY",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Trocky.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "5114" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "985" },
-        { icon: "fas fa-bolt", label: "Munição", value: "8" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "95" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "7.2" }
-      ]
-    },
-    {
-      id: 135,
-      name: "ARMATURE",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Armature.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "9949" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "37" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.05" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" }
-      ]
-    },
-    {
-      id: 136,
-      name: "THROWING KNIVES",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/ThrowingKnives.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4649" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1060" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "7.0" }
-      ]
-    },
-    {
-      id: 137,
-      name: "TACTICAL SHOVEL",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/TacticalShovel.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4974" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1060" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.6" },
-        { icon: "fas fa-running", label: "Velocidade", value: "94" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "7.3" }
-      ]
-    },
-    {
-      id: 138,
-      name: "E-BLADE",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/E-Blade.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "8740" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "60" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.05" },
-        { icon: "fas fa-running", label: "Velocidade", value: "100" }
-      ]
-    },
-    {
-      id: 139,
-      name: "GENTLE KISS",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/GentleKiss.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "9484" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "44" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.15" },
-        { icon: "fas fa-running", label: "Velocidade", value: "96" }
-      ]
-    },
-    {
-      id: 140,
-      name: "SEMPAI",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Sempai.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4510" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1028" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "95" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "7.2" }
-      ]
-    },
-    {
-      id: 141,
-      name: "SURVIVAL TOOL",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/SurvivalTool.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "9763" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "42" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.2" },
-        { icon: "fas fa-running", label: "Velocidade", value: "95" }
-      ]
-    },
-    {
-      id: 142,
-      name: "ANCHOR",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Anchor.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "5346" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "955" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "9.0" },
-        { icon: "fas fa-running", label: "Velocidade", value: "94" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "7.1" }
-      ]
-    },
-    {
-      id: 143,
-      name: "CANDY CANE GOLD",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/CandyCaneGold.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "8833" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "52" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "2.1" },
-        { icon: "fas fa-running", label: "Velocidade", value: "98" }
-      ]
-    },
-    {
-      id: 144,
-      name: "HORROR",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Horror.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "4835" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1060" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "171-310" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.7" },
-        { icon: "fas fa-running", label: "Velocidade", value: "95" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "6.5" }
-      ]
-    },
-    {
-      id: 145,
-      name: "HOPE",
-      category: "Melee",
-      primary: "ARMA CORPO A CORPO: MELEE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Hope.svg",
-      stats: [
-        { icon: "fas fa-fist-raised", label: "Dano", value: "8833" },
-        { icon: "fas fa-tachometer-alt", label: "Velocidade de Ataque", value: "55" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "1.9" },
-        { icon: "fas fa-running", label: "Velocidade", value: "97" }
-      ]
-    }
-  ],
-  "Prototypes": [
-    {
-      id: 146,
-      name: "TAMM",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Tamm.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "8798" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "72" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17" },
-        { icon: "fas fa-running", label: "Velocidade", value: "77" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.8" }
-      ]
-    },
-    {
-      id: 147,
-      name: "MLG99",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/MLG99.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "14000" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "930" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "190" },
-        { icon: "fas fa-ruler-horizontal", label: "Raio de Dano", value: "3.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.5" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "20" }
-      ]
-    },
-    {
-      id: 148,
-      name: "SMS41",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/SMS41.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "20000" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "930" },
-        { icon: "fas fa-bolt", label: "Munição", value: "1" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "60" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "24.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "65" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "64-1000" }
-      ]
-    },
-    {
-      id: 149,
-      name: "KAPITZ-A",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Kapitz-A.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Força de Pressão", value: "4000" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "930" },
-        { icon: "fas fa-bolt", label: "Tempo de Recarga", value: "2.5" },
-        { icon: "fas fa-ruler-horizontal", label: "Distancia da Tração", value: "13" },
-        { icon: "fas fa-regular fa-meteor", label: "Velocidade do Ativo", value: "45" },
-        { icon: "fas fa-dumbbell", label: "Força de Tração", value: "1400" },
-        { icon: "fas fa-running", label: "Velocidade", value: "85" }
-      ]
-    },
-    {
-      id: 150,
-      name: "1S1K",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/1S1K.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "20000" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "930" },
-        { icon: "fas fa-bolt", label: "Munição", value: "1" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "60" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "23" },
-        { icon: "fas fa-running", label: "Velocidade", value: "70" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "64-1000" }
-      ]
-    },
-    {
-      id: 151,
-      name: "MAXWELL",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Maxwell.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "8275" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "2067" },
-        { icon: "fas fa-bolt", label: "Munição", value: "2" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "81" },
-        { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "17" },
-        { icon: "fas fa-running", label: "Velocidade", value: "84" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "1.7" }
-      ]
-    },
-    {
-      id: 152,
-      name: "FAT BOY",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/FatBoy.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "13580" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "930" },
-        { icon: "fas fa-bolt", label: "Munição", value: "7" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "180" },
-        { icon: "fas fa-ruler-horizontal", label: "Precisão", value: "20" },
-        { icon: "fas fa-running", label: "Velocidade", value: "92" },
-        { icon: "fas fa-ruler-horizontal", label: "Raio de Dano", value: "3.5" },
-        { icon: "fas fa-sync-alt", label: "Recarga", value: "5.8" }
-      ]
-    },
-    {
-      id: 153,
-      name: "GRAVIZAPA",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/Gravizapa.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Força de Pressão", value: "4000" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "930" },
-        { icon: "fas fa-bolt", label: "Tempo de Recarga", value: "2.3" },
-        { icon: "fas fa-ruler-horizontal", label: "Distancia da Tração", value: "11" },
-        { icon: "fas fa-regular fa-meteor", label: "Velocidade do Ativo", value: "45" },
-        { icon: "fas fa-dumbbell", label: "Força de Tração", value: "1400" },
-        { icon: "fas fa-running", label: "Velocidade", value: "85" }
-      ]
-    },
-    {
-      id: 154,
-      name: "REIGN OF FIRE",
-      category: "Prototypes",
-      primary: "ARMA EXPERIMENTAL: PROTOTYPE",
-      rarity: "Épico",
-      stars: 5,
-      image: "/weapons/ReignOfFire.svg",
-      stats: [
-        { icon: "fas fa-burn", label: "Dano", value: "14000" },
-        { icon: "fas fa-fist-raised", label: "Dano Melee", value: "930" },
-        { icon: "fas fa-bolt", label: "Munição", value: "6" },
-        { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "200" },
-        { icon: "fas fa-ruler-horizontal", label: "Raio de Dano", value: "3.5" },
-        { icon: "fas fa-running", label: "Velocidade", value: "90" },
-        { icon: "fas fa-sync-alt", label: "Regarga", value: "5.8" },
-        { icon: "fas fa-bullseye", label: "Precisão", value: "20" }
-      ]
-    }
-  ]
+  "Assault Rifle": parseRTFWeapons(assaultRifleRTF),
+  "SMG": parseRTFWeapons(smgRTF),
+  "Shotgun": parseRTFWeapons(shotgunRTF),
+  "Sniper Rifle": parseRTFWeapons(sniperRifleRTF),
+  "Machine Gun": parseRTFWeapons(machineGunRTF),
+  "Pistols": parseRTFWeapons(pistolRTF),
+  "Melee": parseRTFWeapons(meleeRTF),
+  "Prototypes": parseRTFWeapons(prototypesRTF)
 };
 
 export const weaponCategories = [
   { id: "Assault Rifle", icon: "fas fa-crosshairs", label: "Assault Rifle" },
   { id: "SMG", icon: "fas fa-bolt", label: "SMG" },
-  { id: "Shotgun", icon: "fas fa-burst", label: "Shotgun" },
+  { id: "Shotgun", icon: "fas fa-bomb", label: "Shotgun" },
   { id: "Sniper Rifle", icon: "fas fa-bullseye", label: "Sniper Rifle" },
   { id: "Machine Gun", icon: "fas fa-fire", label: "Machine Gun" },
-  { id: "Pistols", icon: "fas fa-gun", label: "Pistols" },
-  { id: "Melee", icon: "fas fa-hammer", label: "Melee" },
+  { id: "Pistols", icon: "fas fa-circle", label: "Pistols" },
+  { id: "Melee", icon: "fas fa-sword", label: "Melee" },
   { id: "Prototypes", icon: "fas fa-flask", label: "Prototypes" }
 ];
