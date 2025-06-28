@@ -1,0 +1,400 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>Max Weapon Stats Without Mods or Operators</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      font-family: "Roboto Condensed", sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div
+    class="min-h-screen flex items-center justify-center p-6"
+    style="
+      background-image: url('https://raw.githubusercontent.com/rivotriltacticool/docs/ba4622380aea260561ecb29da877f4aa672effdd/BG.jpg');
+      background-size: cover;
+      background-position: center;
+    "
+  >
+    <div
+      class="w-full max-w-[1100px] rounded-3xl bg-[#1a3a4a]/90 backdrop-blur-md p-6 flex flex-col"
+    >
+      <header class="flex justify-between items-center mb-6 px-4">
+        <img
+          alt="TACTICOOL main logo in white rectangular border"
+          class="object-contain"
+          height="66"
+          src="https://raw.githubusercontent.com/rivotriltacticool/docs/refs/heads/main/logo.png"
+          style="width: 349px"
+          width="349"
+        />
+        <div class="text-white text-xs font-light">PT/ENG</div>
+      </header>
+      <h1
+        class="text-white text-4xl sm:text-5xl font-light text-center mb-6 px-4"
+      >
+        Max Weapon Stats
+      </h1>
+      <main class="flex flex-col sm:flex-row gap-6 px-4">
+        <section
+          id="categories"
+          class="rounded-3xl flex flex-col items-center py-6 w-full sm:w-[280px]"
+          style="background-color: rgba(43, 117, 134, 0.6)"
+        >
+          <h2 class="text-white text-lg font-semibold mb-1 tracking-wide">
+            CATEGORIES
+          </h2>
+          <p class="text-white text-[10px] font-light mb-6 text-center px-4">
+            Please select the weapon categorie
+          </p>
+          <nav class="flex flex-col space-y-2 w-[160px] overflow-y-auto max-h-[600px]">
+            <button
+              data-category="Assault Rifle"
+              class="category-btn bg-[#00B3B1] text-white text-[13px] font-light py-1 px-3 rounded-r-[4px] rounded-l-[20px] text-center"
+              type="button"
+            >
+              Assault Rifle
+            </button>
+            <button
+              data-category="SMG"
+              class="category-btn bg-[#2a2a2a] text-white text-[13px] font-light py-1 px-3 rounded-r-[4px] rounded-l-[20px] text-center"
+              type="button"
+            >
+              SMG
+            </button>
+            <button
+              data-category="Shotgun"
+              class="category-btn bg-[#2a2a2a] text-white text-[13px] font-light py-1 px-3 rounded-r-[4px] rounded-l-[20px] text-center"
+              type="button"
+            >
+              Shotgun
+            </button>
+            <button
+              data-category="Sniper Rifle"
+              class="category-btn bg-[#2a2a2a] text-white text-[13px] font-light py-1 px-3 rounded-r-[4px] rounded-l-[20px] text-center"
+              type="button"
+            >
+              Sniper Rifle
+            </button>
+            <button
+              data-category="Machine Gun"
+              class="category-btn bg-[#2a2a2a] text-white text-[13px] font-light py-1 px-3 rounded-r-[4px] rounded-l-[20px] text-center"
+              type="button"
+            >
+              Machine Gun
+            </button>
+            <button
+              data-category="Pistols"
+              class="category-btn bg-[#2a2a2a] text-white text-[13px] font-light py-1 px-3 rounded-r-[4px] rounded-l-[20px] text-center"
+              type="button"
+            >
+              Pistols
+            </button>
+            <button
+              data-category="Melee"
+              class="category-btn bg-[#2a2a2a] text-white text-[13px] font-light py-1 px-3 rounded-r-[4px] rounded-l-[20px] text-center"
+              type="button"
+            >
+              Melee
+            </button>
+            <button
+              data-category="Prototypes"
+              class="category-btn bg-[#2a2a2a] text-white text-[13px] font-light py-1 px-3 rounded-r-[4px] rounded-l-[20px] text-center"
+              type="button"
+            >
+              Prototypes
+            </button>
+          </nav>
+        </section>
+        <section
+          id="weapon-details"
+          class="rounded-3xl flex flex-col flex-1 p-6 relative"
+          style="background-color: #2B7586;"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h2
+              id="category-title"
+              class="text-white font-light text-3xl"
+            >
+              Assault Rifle
+            </h2>
+            <form class="flex items-center" role="search" onsubmit="event.preventDefault();">
+              <input
+                aria-label="Search by name"
+                class="text-xs font-light px-2 py-1 rounded-l-sm border border-gray-300 focus:outline-none"
+                placeholder="Search by Name"
+                type="search"
+                id="search-input"
+              />
+              <button
+                class="bg-[#c4bfbf] text-[11px] font-light px-3 py-1 rounded-r-sm hover:bg-gray-300 transition"
+                type="submit"
+                id="search-button"
+              >
+                Search
+              </button>
+            </form>
+          </div>
+          <div class="flex items-center justify-center gap-6 select-none">
+            <button
+              aria-label="Previous weapon"
+              class="text-white text-4xl font-light opacity-50 hover:opacity-80 transition"
+              type="button"
+              id="prev-weapon"
+            >
+              &lt;
+            </button>
+            <img
+              alt="Weapon image"
+              class="rounded-md max-w-[300px] max-h-[200px] object-contain"
+              height="200"
+              id="weapon-image"
+              src=""
+              width="300"
+            />
+            <div
+              class="max-w-[400px] max-h-[200px] p-0 text-white text-xs font-light leading-tight select-text"
+              id="weapon-stats"
+            >
+              <p class="text-[10px] font-bold uppercase tracking-widest mb-1" id="weapon-primary"></p>
+              <p class="text-yellow-400 text-3xl font-extrabold mb-1" id="weapon-name"></p>
+              <p class="text-white text-xs font-semibold mb-1" id="weapon-rarity"></p>
+              <div class="flex mb-2" id="weapon-stars"></div>
+              <span
+                class="flex-1 text-right text-[10px] uppercase tracking-widest font-light"
+                id="weapon-max"
+              >
+                MÁXIMA
+              </span>
+              <ul class="space-y-1" id="weapon-stats-list"></ul>
+            </div>
+            <button
+              aria-label="Next weapon"
+              class="text-white text-4xl font-light opacity-50 hover:opacity-80 transition"
+              type="button"
+              id="next-weapon"
+            >
+              &gt;
+            </button>
+          </div>
+        </section>
+      </main>
+      <footer
+        class="flex justify-between items-center mt-8 px-4 text-white text-[11px] font-light"
+      >
+        <p class="max-w-[600px]">
+          Hey, if you enjoy the tools I create, please supporting me so I can continue developing new features and improvements. Thank you!
+        </p>
+        <div class="flex items-center space-x-3">
+          <a
+            aria-label="TikTok link"
+            class="text-yellow-400 text-2xl hover:text-yellow-300 transition"
+            href="#"
+            ><i class="fab fa-tiktok"></i
+          ></a>
+          <a
+            aria-label="Telegram link"
+            class="text-yellow-400 text-2xl hover:text-yellow-300 transition"
+            href="#"
+            ><i class="fab fa-telegram-plane"></i
+          ></a>
+          <img
+            alt="Black and yellow stylized icon of a person with a headset"
+            class="object-contain"
+            height="54"
+            src="https://raw.githubusercontent.com/rivotriltacticool/docs/refs/heads/main/code.png"
+            style="width: 209px"
+            width="209"
+          />
+        </div>
+      </footer>
+    </div>
+  </div>
+  <script>
+    const weaponsData = {
+      "Assault Rifle": [
+        // Assault Rifle weapons here (not shown for brevity)
+      ],
+      SMG: [
+        // SMG weapons here (not shown for brevity)
+      ],
+      Shotgun: [
+        {
+          name: "OXHEAD",
+          primary: "ARMA PRIMÁRIA: SHOTGUN",
+          rarity: "Raro",
+          stars: 5,
+          image:
+            "https://raw.githubusercontent.com/rivotriltacticool/docs/main/images/oxhead.png",
+          stats: [
+            { icon: "fas fa-burn", label: "Dano", value: "5366" },
+            { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1395" },
+            { icon: "fas fa-bolt", label: "Munição", value: "2" },
+            { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "114" },
+            { icon: "fas fa-bullseye", label: "Precisão", value: "135" },
+            { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "7.5" },
+            { icon: "fas fa-running", label: "Velocidade do Personagem", value: "96" },
+            { icon: "fas fa-sync-alt", label: "Tempo de Recarga", value: "4.2" },
+          ],
+        },
+        {
+          name: "REAVER M30",
+          primary: "ARMA PRIMÁRIA: SHOTGUN",
+          rarity: "Raro",
+          stars: 5,
+          image:
+            "https://raw.githubusercontent.com/rivotriltacticool/docs/main/images/reaverm30.png",
+          stats: [
+            { icon: "fas fa-burn", label: "Dano", value: "4320" },
+            { icon: "fas fa-fist-raised", label: "Dano Melee", value: "1395" },
+            { icon: "fas fa-bolt", label: "Munição", value: "6" },
+            { icon: "fas fa-tachometer-alt", label: "Cadência de Tiro", value: "108" },
+            { icon: "fas fa-bullseye", label: "Precisão", value: "47" },
+            { icon: "fas fa-ruler-horizontal", label: "Alcance", value: "8.6" },
+            { icon: "fas fa-running", label: "Velocidade do Personagem", value: "99" },
+            { icon: "fas fa-sync-alt", label: "Tempo de Recarga", value: "4.2" },
+          ],
+        },
+        // ... add all other Shotgun weapons similarly ...
+      ],
+      // Other categories...
+    };
+
+    const categoryButtons = document.querySelectorAll(".category-btn");
+    const categoryTitle = document.getElementById("category-title");
+    const weaponImage = document.getElementById("weapon-image");
+    const weaponName = document.getElementById("weapon-name");
+    const weaponPrimary = document.getElementById("weapon-primary");
+    const weaponRarity = document.getElementById("weapon-rarity");
+    const weaponStars = document.getElementById("weapon-stars");
+    const weaponStatsList = document.getElementById("weapon-stats-list");
+
+    let currentCategory = "Shotgun";
+    let currentIndex = 0;
+
+    function renderStars(count) {
+      weaponStars.innerHTML = "";
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement("i");
+        star.className = "fas fa-star text-yellow-400 text-sm";
+        weaponStars.appendChild(star);
+      }
+    }
+
+    function updateWeaponDetails(category, index = 0) {
+      const weapons = weaponsData[category];
+      if (!weapons || weapons.length === 0) return;
+
+      const weapon = weapons[index];
+      if (!weapon) return;
+
+      currentCategory = category;
+      currentIndex = index;
+
+      categoryTitle.textContent = category;
+      weaponImage.src = weapon.image;
+      weaponImage.alt = `${weapon.name} weapon image`;
+      weaponName.textContent = weapon.name;
+      weaponPrimary.textContent = weapon.primary;
+      weaponRarity.textContent = `Raridade: ${weapon.rarity}`;
+      renderStars(weapon.stars);
+
+      // Clear existing stats
+      weaponStatsList.innerHTML = "";
+
+      // Add new stats
+      weapon.stats.forEach((stat) => {
+        const li = document.createElement("li");
+        li.className = "flex items-center space-x-2";
+
+        const icon = document.createElement("i");
+        icon.className = `${stat.icon} text-white opacity-80 w-4`;
+
+        const label = document.createElement("span");
+        label.textContent = stat.label;
+
+        const value = document.createElement("span");
+        value.className = "ml-auto font-bold";
+        value.textContent = stat.value;
+
+        li.appendChild(icon);
+        li.appendChild(label);
+        li.appendChild(value);
+
+        weaponStatsList.appendChild(li);
+      });
+    }
+
+    categoryButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        // Remove active color from all buttons
+        categoryButtons.forEach((b) => {
+          b.classList.remove("bg-[#00B3B1]");
+          b.classList.add("bg-[#2a2a2a]");
+        });
+
+        // Add active color to clicked button
+        btn.classList.remove("bg-[#2a2a2a]");
+        btn.classList.add("bg-[#00B3B1]");
+
+        // Update weapon details to first weapon in category
+        updateWeaponDetails(btn.dataset.category, 0);
+      });
+    });
+
+    // Navigation buttons
+    document.getElementById("prev-weapon").addEventListener("click", () => {
+      const weapons = weaponsData[currentCategory];
+      if (!weapons) return;
+      currentIndex = (currentIndex - 1 + weapons.length) % weapons.length;
+      updateWeaponDetails(currentCategory, currentIndex);
+    });
+
+    document.getElementById("next-weapon").addEventListener("click", () => {
+      const weapons = weaponsData[currentCategory];
+      if (!weapons) return;
+      currentIndex = (currentIndex + 1) % weapons.length;
+      updateWeaponDetails(currentCategory, currentIndex);
+    });
+
+    // Search functionality
+    document.getElementById("search-button").addEventListener("click", () => {
+      const searchInput = document.getElementById("search-input").value.trim().toLowerCase();
+      if (!searchInput) return;
+
+      const weapons = weaponsData[currentCategory];
+      if (!weapons) return;
+
+      const foundIndex = weapons.findIndex((w) => w.name.toLowerCase() === searchInput);
+      if (foundIndex !== -1) {
+        updateWeaponDetails(currentCategory, foundIndex);
+      } else {
+        alert("Weapon not found in this category.");
+      }
+    });
+
+    // Initialize with Shotgun active
+    window.addEventListener("DOMContentLoaded", () => {
+      const initialBtn = Array.from(categoryButtons).find(
+        (btn) => btn.dataset.category === "Shotgun"
+      );
+      if (initialBtn) {
+        initialBtn.classList.remove("bg-[#2a2a2a]");
+        initialBtn.classList.add("bg-[#00B3B1]");
+        updateWeaponDetails("Shotgun", 0);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* TACTICOOL Custom Colors */
+  --tacticool-dark: hsl(200, 42%, 19%);
+  --tacticool-teal: hsl(193, 49%, 32%);
+  --tacticool-accent: hsl(179, 100%, 35%);
+  --tacticool-gray: hsl(0, 0%, 16%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: "Roboto Condensed", sans-serif;
+  }
+}
+
+@layer utilities {
+  /* TACTICOOL Color Classes */
+  .bg-tacticool-dark {
+    background-color: var(--tacticool-dark);
+  }
+  
+  .bg-tacticool-teal {
+    background-color: var(--tacticool-teal);
+  }
+  
+  .bg-tacticool-accent {
+    background-color: var(--tacticool-accent);
+  }
+  
+  .bg-tacticool-gray {
+    background-color: var(--tacticool-gray);
+  }
+  
+  .text-tacticool-dark {
+    color: var(--tacticool-dark);
+  }
+  
+  .text-tacticool-teal {
+    color: var(--tacticool-teal);
+  }
+  
+  .text-tacticool-accent {
+    color: var(--tacticool-accent);
+  }
+  
+  .text-tacticool-gray {
+    color: var(--tacticool-gray);
+  }
+  
+  .border-tacticool-teal {
+    border-color: var(--tacticool-teal);
+  }
+  
+  .border-tacticool-accent {
+    border-color: var(--tacticool-accent);
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--tacticool-accent);
+    border-radius: 3px;
+  }
+  
+  /* Loading animation */
+  .loading-spinner {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 2px solid var(--tacticool-accent);
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Weapon image loading state */
+  .weapon-image-container {
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .weapon-image-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  /* Smooth transitions */
+  .category-btn {
+    transition: all 0.3s ease;
+  }
+  
+  .category-btn:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0, 179, 177, 0.3);
+  }
+  
+  /* Navigation buttons */
+  .nav-btn {
+    transition: all 0.2s ease;
+  }
+  
+  .nav-btn:hover {
+    transform: scale(1.1);
+    color: var(--tacticool-accent);
+  }
+  
+  /* Stats animation */
+  .stat-item {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp 0.3s ease forwards;
+  }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.3s ease forwards;
+  }
+}
