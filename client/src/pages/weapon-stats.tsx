@@ -303,10 +303,10 @@ export default function WeaponStats() {
               ) : (
                 <div className="h-full relative">
                   
-                  {/* Navigation Arrows - Posicionadas fora da área das estrelas */}
+                  {/* Navigation Arrows - MENORES E SEM BORDAS */}
                   <button
                     aria-label={translate("Previous weapon", "Arma anterior")}
-                    className="nav-btn text-tacticool-accent text-lg sm:text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute left-1 sm:left-2 top-[45%] transform -translate-y-1/2 z-10 bg-tacticool-dark/70 backdrop-blur-sm rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center border border-tacticool-accent/30"
+                    className="text-tacticool-accent text-sm hover:text-white transition-all duration-200 hover:scale-110 absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-6 h-6 flex items-center justify-center"
                     type="button"
                     onClick={() => navigateWeapon(-1)}
                     disabled={filteredWeapons.length <= 1}
@@ -316,7 +316,7 @@ export default function WeaponStats() {
                   
                   <button
                     aria-label={translate("Next weapon", "Próxima arma")}
-                    className="nav-btn text-tacticool-accent text-lg sm:text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute right-1 sm:right-2 top-[45%] transform -translate-y-1/2 z-10 bg-tacticool-dark/70 backdrop-blur-sm rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center border border-tacticool-accent/30"
+                    className="text-tacticool-accent text-sm hover:text-white transition-all duration-200 hover:scale-110 absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-6 h-6 flex items-center justify-center"
                     type="button"
                     onClick={() => navigateWeapon(1)}
                     disabled={filteredWeapons.length <= 1}
@@ -325,7 +325,7 @@ export default function WeaponStats() {
                   </button>
                   
                   {/* Mobile Layout - Vertical Stack */}
-                  <div className="flex flex-col lg:flex-row items-center justify-center h-full px-10 sm:px-12 lg:px-8 gap-3 sm:gap-4 lg:gap-6">
+                  <div className="flex flex-col lg:flex-row items-center justify-center h-full px-8 lg:px-8 gap-3 sm:gap-4 lg:gap-6">
                     
                     {/* Weapon Image - Mobile Optimized */}
                     <div className="weapon-image-container bg-tacticool-gray/30 rounded-lg p-2 sm:p-3 relative flex items-center justify-center flex-shrink-0 w-full max-w-[280px] lg:max-w-[220px]" style={{ height: "120px", minHeight: "120px" }}>
