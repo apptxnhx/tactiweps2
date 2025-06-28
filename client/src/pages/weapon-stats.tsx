@@ -164,8 +164,8 @@ export default function WeaponStats() {
                       h-[100vh] sm:h-[90vh] sm:min-h-[800px] sm:max-h-[900px] 
                       overflow-y-auto sm:overflow-hidden custom-scrollbar">
         
-        {/* Header - LOGO AUMENTADO */}
-        <header className="flex justify-between items-center mb-2 sm:mb-3 px-1 sm:px-3 flex-shrink-0">
+        {/* Header - LOGO E BOTÕES DE FERRAMENTAS */}
+        <header className="flex flex-col sm:flex-row justify-between items-center mb-2 sm:mb-3 px-1 sm:px-3 flex-shrink-0 gap-2">
           <img
             alt="TACTICOOL main logo in white rectangular border"
             className="object-contain"
@@ -174,12 +174,45 @@ export default function WeaponStats() {
             style={{ width: "280px" }}
             width="280"
           />
-          <button 
-            onClick={toggleLanguage}
-            className="text-white text-xs font-light bg-tacticool-teal/30 px-2 py-1 rounded-full hover:bg-tacticool-teal/50 transition-colors"
-          >
-            PT/ENG
-          </button>
+          
+          {/* Botões de Ferramentas e Idioma */}
+          <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+            {/* Botão Ferramentas (apenas texto no mobile) */}
+            <span className="text-white text-xs font-medium hidden sm:inline">
+              {translate("Tools", "Ferramentas")}:
+            </span>
+            
+            {/* Botão TacticIntel - Cor Vinho */}
+            <a
+              href="https://rivotriltacticool.github.io/tactintel/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-red-800 hover:bg-red-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-1"
+            >
+              <i className="fas fa-brain text-xs"></i>
+              <span>TacticIntel</span>
+            </a>
+            
+            {/* Botão TacticTool Operators - Cor Navy Blue */}
+            <a
+              href="https://rivotril.elektra.data2.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-blue-900 hover:bg-blue-800 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg flex items-center gap-1"
+            >
+              <i className="fas fa-users text-xs"></i>
+              <span className="hidden sm:inline">TacticTool Operators</span>
+              <span className="sm:hidden">Operators</span>
+            </a>
+            
+            {/* Botão de Idioma */}
+            <button 
+              onClick={toggleLanguage}
+              className="text-white text-xs font-light bg-tacticool-teal/30 px-2 py-1.5 rounded-lg hover:bg-tacticool-teal/50 transition-colors"
+            >
+              PT/ENG
+            </button>
+          </div>
         </header>
         
         {/* Title - Mobile Optimized */}
