@@ -62,6 +62,7 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: "Roboto Condensed", sans-serif;
+    overflow-x: hidden;
   }
 }
 
@@ -107,19 +108,25 @@
     border-color: var(--tacticool-accent);
   }
 
-  /* Custom scrollbar */
+  /* Custom scrollbar - Mobile optimized */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+    border-radius: 2px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: var(--tacticool-accent);
-    border-radius: 3px;
+    border-radius: 2px;
+  }
+  
+  /* Mobile scrollbar for Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--tacticool-accent) rgba(255, 255, 255, 0.1);
   }
   
   /* Loading animation */
@@ -140,7 +147,6 @@
   /* Weapon image loading state */
   .weapon-image-container {
     position: relative;
-    min-height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -163,14 +169,25 @@
     box-shadow: 0 4px 8px rgba(0, 179, 177, 0.3);
   }
   
-  /* Navigation buttons */
+  /* Navigation buttons - Mobile optimized */
   .nav-btn {
     transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
   }
   
   .nav-btn:hover {
     transform: scale(1.1);
     color: var(--tacticool-accent);
+  }
+  
+  .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  
+  .nav-btn:disabled:hover {
+    transform: none;
+    color: inherit;
   }
   
   /* Stats animation */
@@ -189,5 +206,63 @@
 
   .animate-fadeInUp {
     animation: fadeInUp 0.3s ease forwards;
+  }
+
+  /* Mobile specific optimizations */
+  @media (max-width: 768px) {
+    .weapon-image-container {
+      min-height: 100px;
+      height: 100px;
+    }
+    
+    .stat-item {
+      min-height: 16px;
+      padding: 0.25rem 0.5rem;
+    }
+    
+    /* Prevent horizontal scroll on mobile */
+    body {
+      overflow-x: hidden;
+      width: 100%;
+    }
+    
+    /* Ensure touch targets are large enough */
+    button {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Optimize text for mobile readability */
+    .text-mobile-optimized {
+      line-height: 1.4;
+      letter-spacing: 0.025em;
+    }
+  }
+
+  /* Landscape mobile optimization */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .min-h-screen {
+      min-height: 100vh;
+    }
+    
+    .weapon-image-container {
+      height: 80px;
+      min-height: 80px;
+    }
+  }
+
+  /* Very small screens */
+  @media (max-width: 320px) {
+    .text-xs {
+      font-size: 0.65rem;
+    }
+    
+    .text-sm {
+      font-size: 0.75rem;
+    }
+    
+    .p-2 {
+      padding: 0.375rem;
+    }
   }
 }

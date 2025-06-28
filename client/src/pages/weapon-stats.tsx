@@ -8,6 +8,7 @@ export default function WeaponStats() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [language, setLanguage] = useState<"pt" | "en">("en");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const filteredWeapons = useMemo(() => {
     const categoryWeapons = weaponsData[currentCategory] || [];
@@ -37,6 +38,7 @@ export default function WeaponStats() {
           break;
         case "Escape":
           setSearchTerm("");
+          setIsMobileMenuOpen(false);
           break;
       }
     };
@@ -58,6 +60,7 @@ export default function WeaponStats() {
   const selectCategory = (category: string) => {
     setCurrentCategory(category);
     setSearchTerm("");
+    setIsMobileMenuOpen(false);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -66,7 +69,7 @@ export default function WeaponStats() {
 
   const renderStars = (count: number) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <i key={i} className="fas fa-star text-yellow-400 text-sm mr-1" />
+      <i key={i} className="fas fa-star text-yellow-400 text-xs sm:text-sm mr-1" />
     ));
   };
 
@@ -106,7 +109,7 @@ export default function WeaponStats() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen flex items-center justify-center p-2 sm:p-4"
       style={{
         backgroundImage: "linear-gradient(rgba(26, 58, 74, 0.6), rgba(26, 58, 74, 0.7)), url('/BG.jpg')",
         backgroundSize: "cover",
@@ -114,17 +117,17 @@ export default function WeaponStats() {
         backgroundAttachment: "fixed",
       }}
     >
-      <div className="w-full max-w-[960px] rounded-2xl bg-tacticool-dark/90 backdrop-blur-md p-4 flex flex-col shadow-2xl border border-tacticool-teal/30" style={{ height: "600px" }}>
+      <div className="w-full max-w-[960px] rounded-xl sm:rounded-2xl bg-tacticool-dark/90 backdrop-blur-md p-3 sm:p-4 flex flex-col shadow-2xl border border-tacticool-teal/30 min-h-[90vh] sm:min-h-0" style={{ maxHeight: "95vh", height: "auto" }}>
         
-        {/* Header - Reduzido */}
-        <header className="flex justify-between items-center mb-3 px-3">
+        {/* Header - Mobile Optimized */}
+        <header className="flex justify-between items-center mb-2 sm:mb-3 px-1 sm:px-3">
           <img
             alt="TACTICOOL main logo in white rectangular border"
             className="object-contain"
-            height="45"
+            height="35"
             src="/Frame_25.svg"
-            style={{ width: "240px" }}
-            width="240"
+            style={{ width: "180px" }}
+            width="180"
           />
           <button 
             onClick={toggleLanguage}
@@ -134,15 +137,47 @@ export default function WeaponStats() {
           </button>
         </header>
         
-        {/* Título - Reduzido */}
-        <h1 className="text-white text-2xl sm:text-3xl font-light text-center mb-3 px-3 font-roboto">
+        {/* Title - Mobile Optimized */}
+        <h1 className="text-white text-lg sm:text-2xl md:text-3xl font-light text-center mb-2 sm:mb-3 px-2 sm:px-3 font-roboto leading-tight">
           {translate("Max Weapon Stats Without Mods or Operators", "Estatísticas Máximas de Armas sem Operadores e sem Mods")}
         </h1>
         
-        <main className="flex flex-col lg:flex-row gap-4 px-3 flex-1 overflow-hidden">
+        <main className="flex flex-col lg:flex-row gap-3 sm:gap-4 px-1 sm:px-3 flex-1 overflow-hidden">
           
-          {/* Category Sidebar - Otimizado */}
-          <section className="rounded-2xl flex flex-col items-center py-4 w-full lg:w-[220px] bg-tacticool-teal/60 backdrop-blur-sm">
+          {/* Mobile Category Toggle Button */}
+          <div className="lg:hidden mb-2">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="w-full bg-tacticool-teal/60 text-white py-2 px-4 rounded-lg flex items-center justify-between"
+            >
+              <span className="text-sm font-medium">
+                <i className="fas fa-list-ul mr-2"></i>
+                {currentCategory}
+              </span>
+              <i className={`fas fa-chevron-${isMobileMenuOpen ? 'up' : 'down'} transition-transform`}></i>
+            </button>
+            
+            {/* Mobile Category Menu */}
+            {isMobileMenuOpen && (
+              <div className="absolute z-50 w-[calc(100%-2rem)] mt-1 bg-tacticool-dark/95 backdrop-blur-md rounded-lg border border-tacticool-teal/30 max-h-60 overflow-y-auto">
+                {weaponCategories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => selectCategory(category.id)}
+                    className={`w-full text-left px-4 py-3 text-sm text-white hover:bg-tacticool-teal/30 transition-colors flex items-center space-x-3 ${
+                      currentCategory === category.id ? "bg-tacticool-accent/20" : ""
+                    }`}
+                  >
+                    <i className={`${category.icon} text-tacticool-accent`}></i>
+                    <span>{category.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Category Sidebar */}
+          <section className="hidden lg:flex rounded-2xl flex-col items-center py-4 w-[220px] bg-tacticool-teal/60 backdrop-blur-sm">
             <h2 className="text-white text-sm font-semibold mb-1 tracking-wide">
               <i className="fas fa-list-ul mr-2"></i>{translate("CATEGORIES", "CATEGORIAS")}
             </h2>
@@ -168,52 +203,48 @@ export default function WeaponStats() {
             </nav>
           </section>
           
-          {/* Weapon Details - Altura otimizada */}
-          <section className="rounded-2xl flex flex-col flex-1 p-3 relative bg-tacticool-teal shadow-lg" style={{ maxWidth: "700px", height: "480px" }}>
+          {/* Weapon Details - Mobile Optimized */}
+          <section className="rounded-xl sm:rounded-2xl flex flex-col flex-1 p-2 sm:p-3 relative bg-tacticool-teal shadow-lg overflow-hidden">
             
-            {/* Weapon Header - Compacto */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1 gap-2">
-              <h2 className="text-white font-light text-xl flex items-center">
-                <i className="fas fa-crosshairs mr-2 text-tacticool-accent"></i>
-                <span>{currentCategory}</span>
-              </h2>
+            {/* Search Bar - Mobile Optimized */}
+            <div className="mb-2 sm:mb-3">
               <form 
-                className="flex items-center w-full sm:w-auto" 
+                className="flex items-center w-full" 
                 role="search" 
                 onSubmit={handleSearch}
               >
                 <input
                   aria-label={translate("Search by name", "Buscar por nome")}
-                  className="text-xs font-light px-2 py-1 rounded-l-md border-0 focus:outline-none focus:ring-2 focus:ring-tacticool-accent bg-white/90 w-full sm:w-auto"
+                  className="text-xs sm:text-sm font-light px-2 sm:px-3 py-1.5 sm:py-2 rounded-l-md border-0 focus:outline-none focus:ring-2 focus:ring-tacticool-accent bg-white/90 flex-1"
                   placeholder={translate("Search by Name", "Buscar por Nome")}
                   type="search"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <button
-                  className="bg-tacticool-accent text-white text-xs font-light px-3 py-1 rounded-r-md hover:bg-tacticool-accent/80 transition flex items-center"
+                  className="bg-tacticool-accent text-white text-xs sm:text-sm font-light px-3 sm:px-4 py-1.5 sm:py-2 rounded-r-md hover:bg-tacticool-accent/80 transition flex items-center"
                   type="submit"
                 >
                   <i className="fas fa-search mr-1"></i>
-                  {translate("Search", "Buscar")}
+                  <span className="hidden sm:inline">{translate("Search", "Buscar")}</span>
                 </button>
               </form>
             </div>
             
-            {/* Weapon Display - ÁREA PRINCIPAL SEM SCROLL - MOVIDO MAIS PARA CIMA */}
-            <div className="bg-tacticool-dark/50 rounded-xl p-4 flex-1 overflow-hidden" style={{ height: "380px" }}>
+            {/* Weapon Display - Mobile Layout */}
+            <div className="bg-tacticool-dark/50 rounded-lg sm:rounded-xl p-2 sm:p-4 flex-1 overflow-hidden">
               {filteredWeapons.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-white text-lg mb-2">{translate("No weapon found", "Nenhuma arma encontrada")}</p>
-                  <p className="text-white/60">{translate("Try another search term", "Tente outro termo de pesquisa")}</p>
+                  <p className="text-white text-base sm:text-lg mb-2">{translate("No weapon found", "Nenhuma arma encontrada")}</p>
+                  <p className="text-white/60 text-sm">{translate("Try another search term", "Tente outro termo de pesquisa")}</p>
                 </div>
               ) : (
-                <div className="flex items-start justify-center h-full relative pt-2">
+                <div className="h-full relative">
                   
-                  {/* Setas de Navegação - MENORES E POSIÇÃO FIXA SEM SOBREPOR TEXTOS */}
+                  {/* Navigation Arrows - Mobile Positioned */}
                   <button
                     aria-label={translate("Previous weapon", "Arma anterior")}
-                    className="nav-btn text-tacticool-accent text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute left-0 top-1/2 transform -translate-y-1/2 z-10"
+                    className="nav-btn text-tacticool-accent text-lg sm:text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 z-10 bg-tacticool-dark/50 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center"
                     type="button"
                     onClick={() => navigateWeapon(-1)}
                     disabled={filteredWeapons.length <= 1}
@@ -223,7 +254,7 @@ export default function WeaponStats() {
                   
                   <button
                     aria-label={translate("Next weapon", "Próxima arma")}
-                    className="nav-btn text-tacticool-accent text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute right-0 top-1/2 transform -translate-y-1/2 z-10"
+                    className="nav-btn text-tacticool-accent text-lg sm:text-xl font-light hover:text-white transition-all duration-200 hover:scale-110 absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 z-10 bg-tacticool-dark/50 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center"
                     type="button"
                     onClick={() => navigateWeapon(1)}
                     disabled={filteredWeapons.length <= 1}
@@ -231,11 +262,11 @@ export default function WeaponStats() {
                     <i className="fas fa-chevron-right"></i>
                   </button>
                   
-                  {/* Container Principal - POSICIONADO MAIS ALTO COM MARGEM PARA AS SETAS */}
-                  <div className="flex items-start justify-center gap-6 w-full max-w-[580px] mx-8">
+                  {/* Mobile Layout - Vertical Stack */}
+                  <div className="flex flex-col lg:flex-row items-center justify-center h-full px-10 sm:px-12 lg:px-8 gap-3 sm:gap-4 lg:gap-6">
                     
-                    {/* Container da Imagem - TAMANHO FIXO */}
-                    <div className="weapon-image-container bg-tacticool-gray/30 rounded-lg p-3 relative flex items-center justify-center flex-shrink-0" style={{ width: "220px", height: "160px" }}>
+                    {/* Weapon Image - Mobile Optimized */}
+                    <div className="weapon-image-container bg-tacticool-gray/30 rounded-lg p-2 sm:p-3 relative flex items-center justify-center flex-shrink-0 w-full max-w-[280px] lg:max-w-[220px]" style={{ height: "120px", minHeight: "120px" }}>
                       {isImageLoading && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="loading-spinner border-2 border-white/30 border-t-tacticool-accent rounded-full w-5 h-5 animate-spin"></div>
@@ -244,10 +275,9 @@ export default function WeaponStats() {
                       {currentWeapon && (
                         <img
                           alt={`${currentWeapon.name} weapon image`}
-                          className={`rounded-md object-contain transition-opacity duration-300 ${
+                          className={`rounded-md object-contain transition-opacity duration-300 max-w-full max-h-full ${
                             isImageLoading ? "opacity-0" : "opacity-100"
                           }`}
-                          style={{ width: "194px", height: "134px" }}
                           src={currentWeapon.image}
                           onLoad={() => setIsImageLoading(false)}
                           onLoadStart={() => setIsImageLoading(true)}
@@ -259,13 +289,13 @@ export default function WeaponStats() {
                       )}
                     </div>
                     
-                    {/* Container dos Stats - LARGURA FIXA E TODOS OS STATS VISÍVEIS - ALTURA AUMENTADA */}
+                    {/* Weapon Stats - Mobile Optimized */}
                     {currentWeapon && (
-                      <div className="w-[320px] text-white font-light leading-tight flex-shrink-0" style={{ height: "320px" }}>
-                        <p className="text-[9px] font-bold uppercase tracking-widest mb-1 text-tacticool-accent">
+                      <div className="w-full lg:w-[320px] text-white font-light leading-tight flex-shrink-0">
+                        <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest mb-1 text-tacticool-accent">
                           {language === "en" ? currentWeapon.primary.replace("ARMA PRIMÁRIA:", "PRIMARY WEAPON:").replace("ARMA SECUNDÁRIA:", "SECONDARY WEAPON:").replace("ARMA CORPO A CORPO:", "MELEE WEAPON:").replace("ARMA EXPERIMENTAL:", "EXPERIMENTAL WEAPON:") : currentWeapon.primary}
                         </p>
-                        <p className={`text-2xl font-black mb-1 ${getRarityColor(currentWeapon.rarity)}`}>
+                        <p className={`text-xl sm:text-2xl font-black mb-1 ${getRarityColor(currentWeapon.rarity)}`}>
                           {currentWeapon.name}
                         </p>
                         <p className="text-white text-xs font-semibold mb-1">
@@ -281,16 +311,16 @@ export default function WeaponStats() {
                           {renderStars(5)}
                         </div>
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-[9px] uppercase tracking-widest font-light text-tacticool-accent">
+                          <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-light text-tacticool-accent">
                             STATS
                           </span>
-                          <span className="text-[9px] uppercase tracking-widest font-light text-tacticool-accent">
+                          <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-light text-tacticool-accent">
                             {translate("MAX", "MÁXIMA")}
                           </span>
                         </div>
                         
-                        {/* TODOS OS STATS COM ESPAÇAMENTO E ALINHAMENTO PADRONIZADOS - SEM SCROLL */}
-                        <div className="space-y-1" style={{ height: "220px" }}>
+                        {/* Stats List - Mobile Optimized with Scroll */}
+                        <div className="space-y-1 max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
                           {currentWeapon.stats.map((stat, index) => (
                             <div 
                               key={index}
@@ -298,12 +328,12 @@ export default function WeaponStats() {
                               style={{ 
                                 animationDelay: `${(index + 1) * 0.1}s`, 
                                 animationFillMode: 'forwards',
-                                minHeight: '20px'
+                                minHeight: '18px'
                               }}
                             >
                               <div className="flex items-center space-x-2 min-w-0 flex-1">
-                                <i className={`${stat.icon} text-tacticool-accent w-3 text-[9px] flex-shrink-0`}></i>
-                                <span className="text-[9px] truncate">
+                                <i className={`${stat.icon} text-tacticool-accent w-3 text-[8px] sm:text-[9px] flex-shrink-0`}></i>
+                                <span className="text-[8px] sm:text-[9px] truncate">
                                   {language === "en" 
                                     ? stat.label === "Dano" ? "Damage"
                                       : stat.label === "Dano Melee" ? "Melee Dmg"
@@ -325,7 +355,7 @@ export default function WeaponStats() {
                                     : stat.label}
                                 </span>
                               </div>
-                              <span className="font-bold text-yellow-400 text-[9px] ml-2 flex-shrink-0">{stat.value}</span>
+                              <span className="font-bold text-yellow-400 text-[8px] sm:text-[9px] ml-2 flex-shrink-0">{stat.value}</span>
                             </div>
                           ))}
                         </div>
@@ -336,7 +366,7 @@ export default function WeaponStats() {
               )}
             </div>
             
-            {/* Weapon Counter - Compacto */}
+            {/* Weapon Counter - Mobile Optimized */}
             {filteredWeapons.length > 0 && (
               <div className="flex justify-center items-center space-x-3 mt-2">
                 <span className="text-white text-xs">
@@ -350,18 +380,18 @@ export default function WeaponStats() {
           </section>
         </main>
         
-        {/* Footer - Compacto */}
-        <footer className="flex flex-col sm:flex-row justify-between items-center mt-4 px-3 text-white text-[9px] font-light gap-2">
-          <p className="max-w-[700px] text-center sm:text-left">
+        {/* Footer - Mobile Optimized */}
+        <footer className="flex flex-col sm:flex-row justify-between items-center mt-3 sm:mt-4 px-2 sm:px-3 text-white text-[8px] sm:text-[9px] font-light gap-2">
+          <p className="max-w-full sm:max-w-[700px] text-center sm:text-left text-[8px] sm:text-[9px] leading-relaxed">
             {translate(
               "Hey, if you enjoy the tools I create, please consider supporting me so I can continue developing new features and improvements. Special thanks to JB Chicken for the data. Thank you!",
               "Ei, se você gosta das ferramentas que eu crio, por favor considere me apoiar para que eu possa continuar desenvolvendo novos recursos e melhorias. Obrigado especial para o JB Chicken pelos dados. Obrigado!"
             )}
           </p>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             <a
               aria-label="TikTok link"
-              className="text-yellow-400 text-lg hover:text-yellow-300 transition transform hover:scale-110"
+              className="text-yellow-400 text-base sm:text-lg hover:text-yellow-300 transition transform hover:scale-110"
               href="https://www.tiktok.com/@rivotril.tacticool"
               target="_blank"
               rel="noopener noreferrer"
@@ -369,7 +399,6 @@ export default function WeaponStats() {
               <i className="fab fa-tiktok"></i>
             </a>
             
-           
             <a
               href="https://market.my.games/pt-BR/games/90"
               target="_blank"
@@ -379,10 +408,10 @@ export default function WeaponStats() {
               <img
                 alt="Black and yellow stylized icon of a person with a headset"
                 className="object-contain hover:opacity-80 transition-opacity"
-                height="35"
+                height="30"
                 src="/code.png"
-                style={{ width: "140px" }}
-                width="140"
+                style={{ width: "120px" }}
+                width="120"
               />
             </a>
           </div>
