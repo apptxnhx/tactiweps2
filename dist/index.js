@@ -14,7 +14,7 @@ var tacticoolWeapons = {
       primary: "ARMA PRIM\xC1RIA: ASSAULT RIFLE",
       rarity: "Raro",
       stars: 5,
-      image: "/weapons/K-Trac_5.8.svg",
+      image: "apptxnhx/tactiweps2/weapons/K-Trac_5.8.svg",
       stats: [
         { icon: "fas fa-burn", label: "Dano", value: "601" },
         { icon: "fas fa-fist-raised", label: "Dano Melee", value: "978" },
