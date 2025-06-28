@@ -164,15 +164,15 @@ export default function WeaponStats() {
                       h-[100vh] sm:h-[90vh] sm:min-h-[800px] sm:max-h-[900px] 
                       overflow-y-auto sm:overflow-hidden custom-scrollbar">
         
-        {/* Header - Mobile Optimized */}
+        {/* Header - LOGO AUMENTADO */}
         <header className="flex justify-between items-center mb-2 sm:mb-3 px-1 sm:px-3 flex-shrink-0">
           <img
             alt="TACTICOOL main logo in white rectangular border"
             className="object-contain"
-            height="35"
+            height="50"
             src="/Frame_25.svg"
-            style={{ width: "180px" }}
-            width="180"
+            style={{ width: "280px" }}
+            width="280"
           />
           <button 
             onClick={toggleLanguage}
