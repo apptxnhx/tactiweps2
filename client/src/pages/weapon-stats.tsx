@@ -159,8 +159,8 @@ export default function WeaponStats() {
         backgroundAttachment: "fixed",
       }}
     >
-      {/* CONTAINER PRINCIPAL COM ALTURA AUMENTADA */}
-      <div className="w-full max-w-[1100px] rounded-xl sm:rounded-2xl bg-tacticool-dark/90 backdrop-blur-md p-3 sm:p-4 flex flex-col shadow-2xl border border-tacticool-teal/30" style={{ height: "750px" }}>
+      {/* CONTAINER PRINCIPAL COM ALTURA MUITO AUMENTADA */}
+      <div className="w-full max-w-[1100px] rounded-xl sm:rounded-2xl bg-tacticool-dark/90 backdrop-blur-md p-3 sm:p-4 flex flex-col shadow-2xl border border-tacticool-teal/30" style={{ height: "90vh", minHeight: "800px", maxHeight: "900px" }}>
         
         {/* Header - Mobile Optimized */}
         <header className="flex justify-between items-center mb-2 sm:mb-3 px-1 sm:px-3 flex-shrink-0">
@@ -227,7 +227,7 @@ export default function WeaponStats() {
             <p className="text-white text-[8px] font-light mb-3 text-center px-3">
               {translate("Please select the weapon category", "Selecione a categoria de arma")}
             </p>
-            <nav className="flex flex-col space-y-1.5 w-[150px] custom-scrollbar overflow-y-auto max-h-[520px] px-2">
+            <nav className="flex flex-col space-y-1.5 w-[150px] custom-scrollbar overflow-y-auto max-h-[600px] px-2">
               {weaponCategories.map((category) => (
                 <button
                   key={category.id}
@@ -246,8 +246,8 @@ export default function WeaponStats() {
             </nav>
           </section>
           
-          {/* Weapon Details - ALTURA AUMENTADA */}
-          <section className="rounded-xl sm:rounded-2xl flex flex-col flex-1 p-2 sm:p-3 relative bg-tacticool-teal shadow-lg overflow-hidden" style={{ height: "580px" }}>
+          {/* Weapon Details - ALTURA MUITO AUMENTADA */}
+          <section className="rounded-xl sm:rounded-2xl flex flex-col flex-1 p-2 sm:p-3 relative bg-tacticool-teal shadow-lg overflow-hidden" style={{ minHeight: "650px" }}>
             
             {/* Search Bar - Mobile Optimized */}
             <div className="mb-2 sm:mb-3 flex-shrink-0">
@@ -294,8 +294,8 @@ export default function WeaponStats() {
               )}
             </div>
             
-            {/* Weapon Display - ÁREA PRINCIPAL COM ALTURA AUMENTADA */}
-            <div className="bg-tacticool-dark/50 rounded-lg sm:rounded-xl p-2 sm:p-4 flex-1 overflow-hidden" style={{ height: "450px" }}>
+            {/* Weapon Display - ÁREA PRINCIPAL COM ALTURA MUITO AUMENTADA */}
+            <div className="bg-tacticool-dark/50 rounded-lg sm:rounded-xl p-2 sm:p-4 flex-1 overflow-hidden" style={{ minHeight: "550px" }}>
               {filteredWeapons.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-white text-base sm:text-lg mb-2">{translate("No weapon found", "Nenhuma arma encontrada")}</p>
@@ -325,11 +325,15 @@ export default function WeaponStats() {
                     <i className="fas fa-chevron-right"></i>
                   </button>
                   
-                  {/* LAYOUT PRINCIPAL - ALTURA AUMENTADA COM PADDING PARA AS SETAS */}
+                  {/* LAYOUT PRINCIPAL - ALTURA MUITO AUMENTADA COM PADDING PARA AS SETAS */}
                   <div className="flex flex-col lg:flex-row items-start justify-center h-full px-8 gap-4 lg:gap-6">
                     
-                    {/* Weapon Image - TAMANHO FIXO */}
-                    <div className="weapon-image-container bg-tacticool-gray/30 rounded-lg p-2 sm:p-3 relative flex items-center justify-center flex-shrink-0 w-full max-w-[280px] lg:max-w-[220px]" style={{ height: "160px", minHeight: "160px" }}>
+                    {/* Weapon Image - TAMANHO RESPONSIVO CORRIGIDO */}
+                    <div className="weapon-image-container bg-tacticool-gray/30 rounded-lg p-2 sm:p-3 relative flex items-center justify-center flex-shrink-0 w-full max-w-[300px] lg:max-w-[250px] mx-auto lg:mx-0" 
+                         style={{ 
+                           height: "180px", 
+                           minHeight: "180px"
+                         }}>
                       {isImageLoading && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="loading-spinner border-2 border-white/30 border-t-tacticool-accent rounded-full w-5 h-5 animate-spin"></div>
@@ -338,9 +342,14 @@ export default function WeaponStats() {
                       {currentWeapon && (
                         <img
                           alt={`${currentWeapon.name} weapon image`}
-                          className={`rounded-md object-contain transition-opacity duration-300 max-w-full max-h-full ${
+                          className={`rounded-md object-contain transition-opacity duration-300 w-full h-full ${
                             isImageLoading ? "opacity-0" : "opacity-100"
                           }`}
+                          style={{ 
+                            maxWidth: "100%", 
+                            maxHeight: "100%",
+                            objectFit: "contain"
+                          }}
                           src={currentWeapon.image}
                           onLoad={() => setIsImageLoading(false)}
                           onLoadStart={() => setIsImageLoading(true)}
@@ -352,11 +361,11 @@ export default function WeaponStats() {
                       )}
                     </div>
                     
-                    {/* Weapon Stats - ÁREA AUMENTADA SEM SCROLL */}
+                    {/* Weapon Stats - ÁREA MUITO AUMENTADA SEM SCROLL - TODOS OS STATS VISÍVEIS */}
                     {currentWeapon && (
-                      <div className="w-full lg:w-[380px] text-white font-light leading-tight flex-shrink-0" style={{ height: "400px" }}>
+                      <div className="w-full lg:w-[420px] text-white font-light leading-tight flex-shrink-0" style={{ minHeight: "500px" }}>
                         {/* Header Info - ALTURA FIXA */}
-                        <div className="mb-3" style={{ height: "90px" }}>
+                        <div className="mb-4" style={{ minHeight: "100px" }}>
                           <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest mb-1 text-tacticool-accent">
                             {language === "en" ? currentWeapon.primary.replace("ARMA PRIMÁRIA:", "PRIMARY WEAPON:").replace("ARMA SECUNDÁRIA:", "SECONDARY WEAPON:").replace("ARMA CORPO A CORPO:", "MELEE WEAPON:").replace("ARMA EXPERIMENTAL:", "EXPERIMENTAL WEAPON:") : currentWeapon.primary}
                           </p>
@@ -398,16 +407,16 @@ export default function WeaponStats() {
                           </span>
                         </div>
                         
-                        {/* ÁREA DE STATS AUMENTADA - SEM SCROLL - TODOS OS STATS VISÍVEIS */}
-                        <div className="space-y-1.5" style={{ height: "300px" }}>
+                        {/* ÁREA DE STATS MUITO AUMENTADA - SEM SCROLL - TODOS OS STATS SEMPRE VISÍVEIS */}
+                        <div className="space-y-2" style={{ minHeight: "380px" }}>
                           {currentWeapon.stats.map((stat, index) => (
                             <div 
                               key={index}
-                              className="stat-item flex items-center justify-between bg-tacticool-gray/30 rounded-md px-3 py-2 opacity-0 transform translate-y-2 animate-fadeInUp"
+                              className="stat-item flex items-center justify-between bg-tacticool-gray/30 rounded-md px-3 py-2.5 opacity-0 transform translate-y-2 animate-fadeInUp"
                               style={{ 
                                 animationDelay: `${(index + 1) * 0.1}s`, 
                                 animationFillMode: 'forwards',
-                                minHeight: '26px'
+                                minHeight: '30px'
                               }}
                             >
                               <div className="flex items-center space-x-3 min-w-0 flex-1">
@@ -430,6 +439,11 @@ export default function WeaponStats() {
                                       : stat.label === "Velocidade do Ativo" ? "Active Movement Speed"
                                       : stat.label === "Distancia da Tração" ? "Pull Distance"
                                       : stat.label === "Raio de Dano" ? "Damage Radius"
+                                      : stat.label === "Velocidade do Personagem" ? "Character Speed"
+                                      : stat.label === "Tempo de Recarga" ? "Reload Time"
+                                      : stat.label === "Durabilidade" ? "Durability"
+                                      : stat.label === "Energia" ? "Energy"
+                                      : stat.label === "Taxa de Disparo" ? "Fire Rate"
                                       : stat.label
                                     : stat.label}
                                 </span>
